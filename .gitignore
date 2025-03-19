@@ -1,7 +1,8 @@
 # Python Bytecode Files
 *.pyc
 *.pyo
-__pycache__/
+__pycache__
+*.py[cod]
 
 # Virtual Environment
 venv/
