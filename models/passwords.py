@@ -10,5 +10,7 @@ class UserPassword(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     password_hash = Column(Text, nullable=False)
 
+    user = relationship('User', back_populates='password')
+
     def __repr__(self):
         return f'<Hash=boiler>'

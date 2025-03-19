@@ -10,5 +10,8 @@ class User(Base):
     name = Column(String(15), nullable=False)
     email = Column(Text, unique=True, nullable=False)
     
+    password = relationship('UserPassword', back_populates='user')
+    roles = relationship('Roles', secondary='user_roles', backref='users')
+
     def __repr__(self):
         return f'<User {self.name} - {self.email}>'
