@@ -1,19 +1,17 @@
 from flask import Flask
-from server_base import Base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from server_base import Base, engine
 from models.user import User
-from dotenv import load_dotenv
-import os
-load_dotenv()
+from models.roles import Roles, UserRole
+from models.passwords import UserPassword
+from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Create the session
+Session = sessionmaker(bind=engine)
+session = Session()
 
 app = Flask(__name__)
 
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
+Base.metadata.create_all(engine)
 
 @app.route('/')
 def index():
@@ -21,5 +19,4 @@ def index():
     return f'Users: {users}'
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
     app.run(debug=True)

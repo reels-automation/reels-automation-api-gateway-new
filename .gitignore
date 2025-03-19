@@ -1,1 +1,70 @@
+# Python Bytecode Files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask specific
+instance/
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+
+# Flask-Migrate database migrations
+migrations/
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Egg files
+*.egg
+*.egg-info
+dist/
+build/
+.eggs/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# dotenv file for environment variables
 .env
+.env.*
+
+# Coverage reports
+.coverage
+.coverage.*
+*.cover
+
+# Pytest Cache
+.cache/
+
+# MyPy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# PyCharm
+.idea/
+
+# Flask-related temporary files
+*.swp
+*.swo
