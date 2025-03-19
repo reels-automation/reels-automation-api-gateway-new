@@ -5,6 +5,17 @@ from server_base import Base
 from sqlalchemy.orm import relationship
 
 class User(Base):
+    """User ORM class
+
+    Args:
+        id: UUID
+        name:(str)
+        email:(str)
+
+
+    Returns:
+        _type_: _description_
+    """
     __tablename__ = 'users'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
     name = Column(String(15), nullable=False)
