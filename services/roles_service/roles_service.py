@@ -7,11 +7,18 @@ class RolesService(ABC):
         Args:
             role_name (str): Nombre del rol
         """
+
+    def delete_role(self, role_id: str):
         pass
 
-    def delete_role(self):
-        pass
-
-    def update_role(self):
+    def update_role(self, role_id: str, new_role_name: str):
         pass
     
+    def get_role(self, role_id: str):
+        """_summary_
+
+        Args:
+            role_id (str): _description_
+        """
+        ""
+        pass
