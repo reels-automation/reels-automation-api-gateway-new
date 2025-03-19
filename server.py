@@ -1,8 +1,9 @@
+""" Server """
 from flask import Flask
-from server_base import Base, engine
-from models.user import User
 from models.roles import Roles, UserRole
 from models.passwords import UserPassword
+from server_base import Base, engine
+from models.user import User
 from sqlalchemy.orm import sessionmaker
 
 
