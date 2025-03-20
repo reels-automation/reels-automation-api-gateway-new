@@ -23,3 +23,14 @@ class UserServicePostgress(UserService):
         session.add(new_user)
         session.commit()
         return new_user.id
+    
+    def get_user_by_name(self, username: str):
+        """Obtiene un usuario en base a el nombre de usuario.
+
+        Args:
+            username (str): El nombre del usuario.
+        """
+        
+        user = session.query(User).filter_by(name=username).first()
+        
+        return user.id

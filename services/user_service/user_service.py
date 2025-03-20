@@ -14,6 +14,9 @@ class UserService(ABC):
     def get_user(self):
         pass
 
+    def get_user_by_name(self):
+        pass
+
     def get_all_users(self):
         pass
     

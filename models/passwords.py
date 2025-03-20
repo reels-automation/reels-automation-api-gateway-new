@@ -13,4 +13,4 @@ class UserPassword(Base):
     user = relationship('User', back_populates='password')
 
     def __repr__(self):
-        return f'<Hash=boiler>'
+        return self.password_hash
