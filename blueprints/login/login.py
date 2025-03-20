@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, jsonify,request
 from services.user_service.user_service_postgress import UserServicePostgress
 from services.password_service.password_service_postgress import PasswordServicePostgress
+from flask_jwt_extended import create_access_token
 
 login_blueprint = Blueprint("login", __name__)
 
@@ -19,10 +20,11 @@ def login():
         login = password_service_postgress.is_same_password(user_uuid, password)
 
         if login:
-            return jsonify({"message: ": f"Congratulations {data["username"]} you are locked in"}), 201
+            access_token = create_access_token(identity=username)
+            return jsonify(access_token), 201
         else:
-            return jsonify({"message": f"kys"}),401
+            return jsonify({"message": f"Erorr. Credenciales Incorrectas."}),401
 
-    except ValueError as e:
+    except Exception as e:
         print("Error: " , str(e))
-        return jsonify({"message": f"Error: {str(e)}"}),404
+        return jsonify({"message": f"Error Ineseperado.: {str(e)}"}),404
