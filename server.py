@@ -13,6 +13,8 @@ from flask_jwt_extended import JWTManager
 
 from dotenv import load_dotenv
 
+from utils.utils import create_default_roles
+
 load_dotenv()
 
 Session = sessionmaker(bind=engine)
@@ -28,6 +30,8 @@ jwt = JWTManager(app)
 app.register_blueprint(helloworld_bp)
 app.register_blueprint(register_blueprint)
 app.register_blueprint(login_blueprint)
+
+create_default_roles()
 
 Base.metadata.create_all(engine)
 

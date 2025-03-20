@@ -1,5 +1,5 @@
-from roles_service import RolesService
-from models.roles import Role
+from services.roles_service.roles_service import RolesService
+from models.roles import Roles
 from server_base import Base, engine, Session
 
 session = Session()
@@ -17,12 +17,11 @@ class RolesServicePostgress(RolesService):
         Args:
             role_name (str): _description_
         """
-        new_role = Role(
+        new_role = Roles(
             name = role_name
         )
         session.add(new_role)
         session.commit()
-
 
     def delete_role(self):
         """_summary_
@@ -34,3 +33,5 @@ class RolesServicePostgress(RolesService):
         """
         pass
     
+    def get_role_by_name(self, name: str):
+        return session.query(Roles).filter_by(name=name).first().id
