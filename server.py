@@ -23,7 +23,6 @@ session = Session()
 app = Flask(__name__)
 
 JWT_KEY = os.getenv("JWT_KEY")
-
 app.config["JWT_SECRET_KEY"] = JWT_KEY  
 jwt = JWTManager(app)
 

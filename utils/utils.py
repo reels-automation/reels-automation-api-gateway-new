@@ -1,6 +1,6 @@
 """ utils """
 from models.roles import Roles
-from server_base import Base, engine, Session
+from server_base import Session
 
 session = Session()
 

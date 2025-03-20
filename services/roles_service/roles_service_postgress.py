@@ -33,5 +33,7 @@ class RolesServicePostgress(RolesService):
         """
         pass
     
-    def get_role_by_name(self, name: str):
-        return session.query(Roles).filter_by(name=name).first().id
+    def get_role_by_name(self, role: str):
+        user = session.query(Roles).filter_by(name=role).first()
+        
+        return user.id
