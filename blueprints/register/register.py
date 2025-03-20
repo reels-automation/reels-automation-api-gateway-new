@@ -24,7 +24,13 @@ def register():
     password_service_postgress.create_password(user_uuid,password)
     rol_id = roles_service_postgres.get_role_by_name("User")
     user_roles_service_postgres.create_user_role(rol_id,user_uuid)
-    access_token = create_access_token(identity=username)
+    
+    additional_claims = {
+        "role": "User"  
+    }
+
+    access_token = create_access_token(identity=username,additional_claims=additional_claims)
+    
     
     print("Data: ", data)
     return jsonify(access_token=access_token),201
