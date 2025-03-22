@@ -2,6 +2,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from server_base import Base, engine
 from sqlalchemy.orm import sessionmaker
 
@@ -21,6 +22,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 app = Flask(__name__)
+CORS(app)
 
 JWT_KEY = os.getenv("JWT_KEY")
 
