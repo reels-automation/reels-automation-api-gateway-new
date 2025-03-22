@@ -4,10 +4,10 @@ from server_base import Session
 
 session = Session()
 
-class UserServicePostgress(UserService):
+class UserServicePostgres(UserService):
 
     def create_user(self, username: str, email: str) -> str:
-        """Inserta un registro de usuario a la base de datos de postgress
+        """Inserta un registro de usuario a la base de datos de postgres
 
         Args:
             username (str)

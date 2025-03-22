@@ -7,5 +7,5 @@ python-run:
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env
 	bash -c 'source env/bin/activate && python server.py'
 
-run-postgress:
+run-postgres:
 	docker compose up

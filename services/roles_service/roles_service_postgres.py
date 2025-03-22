@@ -4,7 +4,7 @@ from server_base import Base, engine, Session
 
 session = Session()
 
-class RolesServicePostgress(RolesService):
+class RolesServicePostgres(RolesService):
     """_summary_
 
     Args:

@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 session = Session()
 
-class PasswordServicePostgress(UserService):
+class PasswordServicePostgres(UserService):
 
     def create_password(self, user_id:str, password:str):
         """Crea un hash de la contraseña de un nuevo usuario.
