@@ -20,13 +20,13 @@ def register():
     user_roles_service_postgres = UserRolesServicePostgres()
     roles_service_postgres = RolesServicePostgres()
 
-    user_uuid = user_service_postgres.create_user(username, email)
-    password_service_postgres.create_password(user_uuid,password)
+    new_user = user_service_postgres.create_user(username, email)
+    password_service_postgres.create_password(new_user.id, password)
     rol_id = roles_service_postgres.get_role_by_name("User")
-    user_roles_service_postgres.create_user_role(rol_id,user_uuid)
+    user_roles_service_postgres.create_user_role(rol_id, new_user.id)
     
     additional_claims = {
-        "role": "User"  
+        "role": "User"
     }
 
     access_token = create_access_token(identity=username,additional_claims=additional_claims)

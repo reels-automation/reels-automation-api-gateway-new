@@ -14,7 +14,7 @@ class UserServicePostgres(UserService):
             email (str)
         
         Return:
-            new_user.id (str): uuid del user
+            new_user (str): el user creado
         """
         new_user = User(
             name = username,
@@ -22,7 +22,7 @@ class UserServicePostgres(UserService):
         )        
         session.add(new_user)
         session.commit()
-        return new_user.id
+        return new_user
     
     def get_user_by_name(self, username: str):
         """Obtiene un usuario en base a el nombre de usuario.

@@ -35,9 +35,9 @@ app.register_blueprint(register_blueprint)
 app.register_blueprint(login_blueprint)
 app.register_blueprint(create_video_blueprint)
 
-create_default_roles()
-
 Base.metadata.create_all(engine)
+
+create_default_roles()
 
 if __name__ == '__main__':
     app.run(debug=True)
