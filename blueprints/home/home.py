@@ -7,9 +7,10 @@ home_blueprint = Blueprint("home", __name__)
 
 @home_blueprint.route("/", methods=["GET"])
 def home():
-    try:
-        return {"message": "maria"}
+    if request.method == "GET":
+        try:
+            return jsonify({"message": "Success"}), 201
 
-    except Exception as e:
-        print("Error: " , str(e))
-        return jsonify({"message": f"Error Ineseperado.: {str(e)}"}),404
+        except Exception as e:
+            print("Error: " , str(e))
+            return jsonify({"message": f"Error Ineseperado.: {str(e)}"}), 404
