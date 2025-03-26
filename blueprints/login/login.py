@@ -5,7 +5,6 @@ from fastapi import status
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
 from fastapi.responses import JSONResponse
-import jwt
 from utils.jwt_utils import create_access_token
 
 login_router = APIRouter()
