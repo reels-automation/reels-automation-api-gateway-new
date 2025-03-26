@@ -1,29 +1,42 @@
-from flask import Blueprint, render_template, redirect, jsonify,request
+from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi import status
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
-from flask_jwt_extended import create_access_token
+from fastapi.responses import JSONResponse
+import jwt
+from utils.jwt_utils import create_access_token
 
-login_blueprint = Blueprint("login", __name__)
+login_router = APIRouter()
 
-@login_blueprint.route("/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data["username"]
-    password = data["password"]
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@login_router.post("/login")
+async def login(data:LoginRequest):
+
+    print("data: ", data)
+
+    username = data.username
+    password = data.password
 
     user_service_postgres = UserServicePostgres()
     password_service_postgres = PasswordServicePostgres()
     
     try:
-        user_uuid = user_service_postgres.get_user_by_name(username)
-        login = password_service_postgres.is_same_password(user_uuid, password)
+        user_uuid =  user_service_postgres.get_user_by_name(username)
+        login =  password_service_postgres.is_same_password(user_uuid, password)
 
         if login:
-            access_token = create_access_token(identity=username)
-            return jsonify(access_token), 201
+            token_data = {"username": username}
+            access_token = create_access_token(token_data)
+            return (access_token), 201
         else:
-            return jsonify({"message": f"Erorr. Credenciales Incorrectas."}),401
+            return JSONResponse(content={"message": f"Erorr. Credenciales Incorrectas."},status_code=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
         print("Error: " , str(e))
-        return jsonify({"message": f"Error Ineseperado.: {str(e)}"}),404
+        return JSONResponse(content={"message": f"Error inesperado {str(e)}"}, status_code=status.HTTP_400_BAD_REQUEST)
