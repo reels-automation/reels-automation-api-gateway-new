@@ -6,7 +6,7 @@ session = Session()
 
 class UserServicePostgres(UserService):
 
-    def create_user(self, username: str, email: str) -> str:
+    def create_user(self, username: str, email: str) -> User:
         """Inserta un registro de usuario a la base de datos de postgres
 
         Args:
@@ -33,4 +33,4 @@ class UserServicePostgres(UserService):
         
         user = session.query(User).filter_by(name=username).first()
         
-        return user.id
+        return user
