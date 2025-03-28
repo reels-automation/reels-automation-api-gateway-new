@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from blueprints.login.login import login_router
 from blueprints.register.register import register_router
+from blueprints.home.home import home_router
+from blueprints.videos.create_video import create_video_router
 
 app = FastAPI()
 
@@ -15,3 +17,5 @@ app.add_middleware(
 
 app.include_router(login_router)
 app.include_router(register_router)
+app.include_router(home_router)
+app.include_router(create_video_router)
