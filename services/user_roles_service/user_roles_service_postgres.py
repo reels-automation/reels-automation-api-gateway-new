@@ -1,3 +1,8 @@
+"""UserRolesServicePostgres.py
+This module implements the UserRolesService interface for PostgreSQL database operations.
+
+"""
+
 from services.user_roles_service.user_roles_service import UserRolesService
 from models.roles import UserRole
 from server_base import Session

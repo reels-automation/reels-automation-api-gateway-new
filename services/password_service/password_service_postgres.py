@@ -1,3 +1,9 @@
+"""PasswordServicePostgres
+Esta clase es una implementación de la interfaz PasswordService.
+Sirve para crear y verificar contraseñas de usuarios en una base de datos Postgres.
+Esta clase utiliza SQLAlchemy para interactuar con la base de datos y Werkzeug para el hashing de contraseñas.
+"""
+
 from services.user_service.user_service import UserService
 from models.passwords import UserPassword
 from server_base import Session
@@ -7,7 +13,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 session = Session()
 
 class PasswordServicePostgres(UserService):
-
     def create_password(self, user_id:str, password:str):
         """Crea un hash de la contraseña de un nuevo usuario.
 

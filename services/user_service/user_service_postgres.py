@@ -1,3 +1,10 @@
+"""UserServicePostgres
+Esta clase es la implementacion de la interfaz UserService para postgres.
+Sirve para crear y obtener usuarios de la base de datos Postgres.
+Esta clase utiliza SQLAlchemy para interactuar con la base de datos.
+    Returns:
+        _type_: _description_
+"""
 from services.user_service.user_service import UserService
 from models.user import User
 from server_base import Session

@@ -1,3 +1,10 @@
+"""RolesServicePostgres
+This module provides an implementation of the RolesService for PostgreSQL.
+It includes methods to add, delete, update, and retrieve roles from the database.
+
+    Returns:
+        _type_: _description_
+"""
 from services.roles_service.roles_service import RolesService
 from models.roles import Roles
 from server_base import Base, engine, Session
