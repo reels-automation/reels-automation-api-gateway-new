@@ -21,7 +21,7 @@ class JWTBearer(HTTPBearer):
         print("Headers: ", credentials)
 
         if credentials:
-            if not credentials.startswith("Bearear"):
+            if not credentials.startswith("Bearer"):
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
 
             token = credentials.split(" ")[1]
