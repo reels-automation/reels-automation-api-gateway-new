@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from quixstreams import Application
 
 load_dotenv()
 
@@ -14,3 +15,4 @@ engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)
+app_producer = Application(broker_address="192.168.1.35:9092", loglevel="DEBUG")
