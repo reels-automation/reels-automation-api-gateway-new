@@ -45,5 +45,4 @@ async def login(data:LoginRequest):
             return JSONResponse(content={"message": f"Erorr. Credenciales Incorrectas."},status_code=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
-        print("Error: " , str(e))
         return JSONResponse(content={"message": f"Error inesperado {str(e)}"}, status_code=status.HTTP_400_BAD_REQUEST)

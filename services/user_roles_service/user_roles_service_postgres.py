@@ -19,3 +19,7 @@ class UserRolesServicePostgres(UserRolesService):
         session.add(new_role)
         session.commit()
         return new_role.id
+
+    def get_role_from_user_uuid(self, user_uuid:str) -> UserRole:
+        role = session.query(UserRole).filter_by(user_id=user_uuid).first()
+        return role

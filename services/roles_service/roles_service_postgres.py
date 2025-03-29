@@ -41,6 +41,12 @@ class RolesServicePostgres(RolesService):
         pass
     
     def get_role_by_name(self, role: str):
-        user = session.query(Roles).filter_by(name=role).first()
-        
+        user = session.query(Roles).filter_by(name=role).first()    
         return user.id
+    
+    def get_role_name_by_uuid(self, uuid:str)-> str:
+        role = session.query(Roles).filter_by(id=uuid).first()
+        return role.name
+
+    def get_premium_roles(self):
+        return ["Admin"]

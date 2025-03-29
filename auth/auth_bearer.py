@@ -8,17 +8,11 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        print("Received ! ")
 
-        print("Request: ", request.json())
         body_bytes = await request.body()
-        print("Request body (bytes): ", body_bytes)
-        print("Headers: ", request.headers.get("authorization"))
 
         credentials = request.headers.get("authorization")
-        #credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
 
-        print("Headers: ", credentials)
 
         if credentials:
             if not credentials.startswith("Bearer"):
@@ -26,7 +20,6 @@ class JWTBearer(HTTPBearer):
 
             token = credentials.split(" ")[1]
 
-            print(token)
 
             if not self.verify_jwt(token):
                 raise HTTPException(status_code=403, detail="Invalid token or expired token.")
