@@ -6,7 +6,10 @@ from services.password_service.password_service_postgres import PasswordServiceP
 from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
 from auth.auth_bearer import JWTBearer
+from services.user_service.user_service_postgres import UserServicePostgres
+
 from kafka.kafka_producer import KafkaProducerSingleton
+from utils.jwt_utils import decode_jwt
 
 create_video_router = APIRouter()
 
@@ -27,8 +30,17 @@ class VideoRequest(BaseModel):
     gameplay_name:str
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
-async def create_video(video:VideoRequest):
+async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
+
+    user_service_postgress = UserServicePostgres()
     
+    decoded_token = decode_jwt(token)
+
+    username = decoded_token["username"]
+    
+    if not user_service_postgress.can_make_post(username):
+        return JSONResponse(content={"message":"You don't have enough credits"}, status_code=400) 
+
     data = {
         "tema": video.tema,
         "personaje": video.personaje,
@@ -49,5 +61,8 @@ async def create_video(video:VideoRequest):
     topic = "temas"
     key="temas_input_humano"
     value=str(data)
-    kafka_producer.produce_message(topic=topic, key=key, value=value)    
+
+    kafka_producer.produce_message(topic=topic, key=key, value=value)
+    user_service_postgress.decrease_user_token(username)
+        
     return JSONResponse(content={"message":"Processing video creation request"}, status_code=200)

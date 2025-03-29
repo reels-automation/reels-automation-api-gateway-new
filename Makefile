@@ -5,7 +5,7 @@ install:
 python-run:
 	sed -i '/^ENVIRONMENT/d' .env
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env
-	bash -c 'source env/bin/activate && python server.py'
+	bash -c 'source env/bin/activate && fastapi dev main.py --port 7080'
 
 run-postgres:
 	docker compose up

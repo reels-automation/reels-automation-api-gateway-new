@@ -38,9 +38,7 @@ class JWTBearer(HTTPBearer):
         isTokenValid: bool = False
 
         try:
-            print("verguita")
             payload = decode_jwt(jwtoken)
-            print("Payload: ", payload)
         except:
             payload = None
         if payload:

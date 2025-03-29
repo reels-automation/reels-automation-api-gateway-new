@@ -2,13 +2,14 @@
 Main entry point for the FastAPI application.
 This file initializes the FastAPI app, sets up CORS middleware, and includes the routers for different blueprints.
 """
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from blueprints.login.login import login_router
 from blueprints.register.register import register_router
 from blueprints.home.home import home_router
 from blueprints.videos.create_video import create_video_router
+from server_base import Base, engine
+from utils.utils import create_default_roles
 
 app = FastAPI()
 
@@ -24,3 +25,6 @@ app.include_router(login_router)
 app.include_router(register_router)
 app.include_router(home_router)
 app.include_router(create_video_router)
+
+Base.metadata.create_all(engine)
+create_default_roles()

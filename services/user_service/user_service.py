@@ -26,4 +26,6 @@ class UserService(ABC):
     def get_all_users(self):
         pass
 
+    def get_user_credits(self):
+        pass
 

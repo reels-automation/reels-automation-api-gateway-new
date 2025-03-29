@@ -31,7 +31,7 @@ class UserServicePostgres(UserService):
         session.commit()
         return new_user
     
-    def get_user_by_name(self, username: str):
+    def get_user_by_name(self, username: str) -> User:
         """Obtiene un usuario en base a el nombre de usuario.
 
         Args:
@@ -41,3 +41,28 @@ class UserServicePostgres(UserService):
         user = session.query(User).filter_by(name=username).first()
         
         return user
+
+    def get_user_credits(self, username:str) -> int:
+        """Obtiene los creditos que tiene un usuario
+
+        Args:
+            username (str): nombre del usuario
+
+        Returns:
+            int: Cantidad de creditosdel usuario
+        """
+        
+        user = self.get_user_by_name(username)
+        return user.credits
+
+    def can_make_post(self, username:str)-> bool:
+
+        return self.get_user_credits(username) > 0
+
+    def decrease_user_token(self, username:str):
+        user = self.get_user_by_name(username)
+
+        if user and user.credits > 0:
+            user.credits -= 1
+            session.commit()
+            session.refresh(user)
