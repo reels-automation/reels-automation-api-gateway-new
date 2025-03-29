@@ -6,8 +6,7 @@ from services.password_service.password_service_postgres import PasswordServiceP
 from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
 from auth.auth_bearer import JWTBearer
-
-from server_base import app_producer
+from kafka.kafka_producer import KafkaProducerSingleton
 
 create_video_router = APIRouter()
 
@@ -46,10 +45,9 @@ async def create_video(video:VideoRequest):
         "instagram_account": video.instagram_account,
         "gameplay_name": video.gameplay_name
     }
-
-    with app_producer.get_producer() as producer:
-        producer.produce(
-            topic="temas", key="temas_input_humano", value=str(data)
-        )
-    
+    kafka_producer = KafkaProducerSingleton()
+    topic = "temas"
+    key="temas_input_humano"
+    value=str(data)
+    kafka_producer.produce_message(topic=topic, key=key, value=value)    
     return JSONResponse(content={"message":"Processing video creation request"}, status_code=200)

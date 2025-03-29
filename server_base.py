@@ -15,4 +15,3 @@ engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)
-app_producer = Application(broker_address="192.168.1.35:9092", loglevel="DEBUG")
