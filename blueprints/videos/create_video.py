@@ -26,10 +26,10 @@ class VideoRequest(BaseModel):
     author:str
     pitch:int
     tts_voice:str
-    tts_rate:str
+    tts_rate:int
     pth_voice:str
-    instagram_account:str
     gameplay_name:str
+    instagram_account:str
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
 async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
@@ -65,7 +65,7 @@ async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
         "tts_voice": video.tts_voice,
         "tts_rate": video.tts_rate,
         "pth_voice": video.pth_voice,
-        "instagram_account": video.instagram_account,
+        "instagram_account":video.instagram_account,
         "gameplay_name": video.gameplay_name
     }
     kafka_producer = KafkaProducerSingleton()
