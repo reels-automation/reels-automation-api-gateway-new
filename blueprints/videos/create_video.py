@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from services.user_service.user_service_postgres import UserServicePostgres
@@ -12,24 +12,49 @@ from auth.auth_bearer import JWTBearer
 
 from kafka.kafka_producer import KafkaProducerSingleton
 from utils.jwt_utils import decode_jwt
+from typing import List
 
 create_video_router = APIRouter()
 
-class VideoRequest(BaseModel):
-    tema:str
-    personaje:str
-    script:str
-    tts_audio_name:str
-    tts_audio_bucket:str
-    subtitles_name:str
-    subtitles_bucket:str
-    author:str
+class ImageItem(BaseModel):
+    image_name: str
+    file_getter: str
+    image_directory: str
+    timestamp: int
+    duration: int
+
+class AudioItem(BaseModel):
+    tts_audio_name: str 
+    tts_audio_directory:str
+    file_getter:str
     pitch:int
     tts_voice:str
     tts_rate:int
     pth_voice:str
+
+class SubtitleItem(BaseModel):
+    subtitles_name:str
+    file_getter:str
+    subtitles_directory:str
+
+class BackgroundMusicItem(BaseModel):
+    audio_name:str
+    file_getter:str
+    start_time:int
+    duration:int
+
+class VideoRequest(BaseModel):
+    tema:str 
+    personaje:str
+    script:str
+    audio_item:List[AudioItem]
+    subtitle_item:List[SubtitleItem]
+    author:str
+    tts_voice:str
     gameplay_name:str
-    instagram_account:str
+    background_music:List[BackgroundMusicItem]
+    images: List[ImageItem]
+
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
 async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
