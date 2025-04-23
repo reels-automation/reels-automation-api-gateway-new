@@ -18,6 +18,7 @@ create_video_router = APIRouter()
 
 class ImageItem(BaseModel):
     image_name: str
+    image_modifier:str
     file_getter: str
     image_directory: str
     timestamp: int
