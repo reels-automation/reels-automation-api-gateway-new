@@ -87,15 +87,14 @@ async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
         "idioma": video.idioma,
         "personaje": video.personaje,
         "script": video.script,
-        "audio_item": video.audio_item,
-        "subtitle_item": video.subtitle_item,
+        "audio_item": [audio.model_dump() for audio in video.audio_item],
+        "subtitle_item": [subtitle.model_dump() for subtitle in video.subtitle_item],
         "author": video.author,
         "gameplay_name":video.gameplay_name,
-        "background_music":video.background_music,
-        "images":video.images,
+        "background_music":[music.model_dump() for music in video.background_music],
+        "images":[image.model_dump() for image in video.images],
         "random_images":False,
         "random_amount_images":0
-
     }
     kafka_producer = KafkaProducerSingleton()
     topic = "temas"
