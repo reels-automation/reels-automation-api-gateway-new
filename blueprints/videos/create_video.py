@@ -53,7 +53,6 @@ class VideoRequest(BaseModel):
     audio_item:List[AudioItem]
     subtitle_item:List[SubtitleItem]
     author:str
-    tts_voice:str
     gameplay_name:str
     background_music:List[BackgroundMusicItem]
     images: List[ImageItem]
@@ -84,19 +83,19 @@ async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
 
     data = {
         "tema": video.tema,
+        "usuario": video.tema,
+        "idioma": video.idioma,
         "personaje": video.personaje,
         "script": video.script,
-        "tts_audio_name": video.tts_audio_name,
-        "tts_audio_bucket": video.tts_audio_bucket,
-        "subtitles_name": video.subtitles_name,
-        "subtitles_bucket": video.subtitles_bucket,
+        "audio_item": video.audio_item,
+        "subtitle_item": video.subtitle_item,
         "author": video.author,
-        "pitch": video.pitch,
-        "tts_voice": video.tts_voice,
-        "tts_rate": video.tts_rate,
-        "pth_voice": video.pth_voice,
-        "instagram_account":video.instagram_account,
-        "gameplay_name": video.gameplay_name
+        "gameplay_name":video.gameplay_name,
+        "background_music":video.background_music,
+        "images":video.images,
+        "random_images":False,
+        "random_amount_images":0
+
     }
     kafka_producer = KafkaProducerSingleton()
     topic = "temas"
