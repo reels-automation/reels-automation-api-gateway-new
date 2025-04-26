@@ -58,6 +58,7 @@ class VideoRequest(BaseModel):
     images: List[ImageItem]
     random_images: bool
     random_amount_images:int
+    gpt_model:str
 
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
@@ -93,8 +94,9 @@ async def create_video(video:VideoRequest, token: dict = Depends(JWTBearer())):
         "gameplay_name":video.gameplay_name,
         "background_music":[music.model_dump() for music in video.background_music],
         "images":[image.model_dump() for image in video.images],
-        "random_images":False,
-        "random_amount_images":0
+        "random_images":video.random_images,
+        "random_amount_images":video.random_amount_images,
+        "gpt_model": video.gpt_model
     }
     kafka_producer = KafkaProducerSingleton()
     topic = "temas"
