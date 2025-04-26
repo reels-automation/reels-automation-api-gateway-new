@@ -46,6 +46,8 @@ class BackgroundMusicItem(BaseModel):
 
 class VideoRequest(BaseModel):
     tema:str 
+    usuario:int
+    idioma:str
     personaje:str
     script:str
     audio_item:List[AudioItem]
@@ -55,6 +57,8 @@ class VideoRequest(BaseModel):
     gameplay_name:str
     background_music:List[BackgroundMusicItem]
     images: List[ImageItem]
+    random_images: bool
+    random_amount_images:int
 
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
