@@ -1,6 +1,15 @@
+create-env:
+	@if [ ! -d ".env" ]; then \
+		echo "Creating Python virtual environment in .env using virtualenv..."; \
+		virtualenv env; \
+	else \
+		echo "Virtual environment already exists."; \
+	fi
+
 install:
-	pip install --upgrade pip &&\
-		pip install -r requirements.txt
+	@. env/bin/activate && \
+	pip install --upgrade pip && \
+	pip install -r requirements.txt
 
 python-run:
 	sed -i '/^ENVIRONMENT/d' .env
