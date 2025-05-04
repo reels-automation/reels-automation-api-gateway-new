@@ -1,6 +1,6 @@
 # create_video.py
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -63,13 +63,7 @@ class VideoRequest(BaseModel):
     random_amount_images: int
     gpt_model: str
 
-async def check_and_decrease_credits(db: AsyncSession, user_service, user_roles_service, roles_service, user, username):
-    current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
 
-    if current_user_role not in await roles_service.get_premium_roles(db):
-        if not await user_service.can_make_post(db, username):
-            raise HTTPException(status_code=400, detail="You don't have enough credits")
-        await user_service.decrease_user_token(db, username)
 
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
 async def create_video(
@@ -88,26 +82,30 @@ async def create_video(
         user = await user_service.get_user_by_name(db, username)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        
+        current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
 
-        await check_and_decrease_credits(db, user_service, user_roles_service, roles_service, user, username)
+        if current_user_role not in await roles_service.get_premium_roles(db):
+            if not await user_service.can_make_post(db, username):
+                raise HTTPException(status_code=400, detail="You don't have enough credits")
+            await user_service.decrease_user_token(db, username)
 
     # transaction committed; now fire off Kafka
     data = {
         "tema": video.tema,
-        "usuario": video.usuario,
+        "usuario": video.tema,
         "idioma": video.idioma,
         "personaje": video.personaje,
         "script": video.script,
-        "audio_item": [audio.dict() for audio in video.audio_item],
-        "subtitle_item": [subtitle.dict() for subtitle in video.subtitle_item],
+        "audio_item": [audio.model_dump() for audio in video.audio_item],
+        "subtitle_item": [subtitle.model_dump() for subtitle in video.subtitle_item],
         "author": video.author,
-        "gameplay_name": video.gameplay_name,
-        "background_music": [bg.dict() for bg in video.background_music],
-        "images": [image.dict() for image in video.images],
-        "random_images": video.random_images,
-        "random_amount_images": video.random_amount_images,
-        "gpt_model": video.gpt_model,
-        "requested_at": datetime.utcnow().isoformat()
+        "gameplay_name":video.gameplay_name,
+        "background_music":[music.model_dump() for music in video.background_music],
+        "images":[image.model_dump() for image in video.images],
+        "random_images":video.random_images,
+        "random_amount_images":video.random_amount_images,
+        "gpt_model": video.gpt_model
     }
 
     try:

@@ -6,11 +6,13 @@ class KafkaProducerSingleton:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(KafkaProducerSingleton, cls).__new__(cls)
-            cls._aplication = Application(broker_address="localhost:9092", loglevel="DEBUG")
+            cls._instance._application = Application(broker_address="localhost:9092", loglevel="DEBUG")
         return cls._instance
 
-    def produce_message(self, topic: str, key: str, value: str):
-        with self._aplication.get_producer() as producer:
+    @classmethod
+    def produce_message(cls, topic: str, key: str, value: str):
+        instance = cls()  # Garantiza que _instance esté creado
+        with instance._application.get_producer() as producer:
             producer.produce(
                 topic=topic,
                 key=key,
