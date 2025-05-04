@@ -29,5 +29,5 @@ class RolesServicePostgres(RolesService):
         role = result.scalar_one_or_none()
         return role.name if role else None
 
-    async def get_premium_roles(self):
+    async def get_premium_roles(self, db: AsyncSession) -> list:
         return ["Admin"]

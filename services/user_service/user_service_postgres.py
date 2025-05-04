@@ -7,8 +7,8 @@ class UserServicePostgres(UserService):
 
     async def create_user(self, db: AsyncSession, username: str, email: str) -> User:
         new_user = User(name=username, email=email)
-        async with db.begin():
-            db.add(new_user)
+        db.add(new_user)
+        await db.flush()      # assign new_user.id
         await db.refresh(new_user)
         return new_user
 
@@ -28,6 +28,6 @@ class UserServicePostgres(UserService):
         user = await self.get_user_by_name(db, username)
         if user and user.credits > 0:
             user.credits -= 1
-            async with db.begin():
-                db.add(user)
+            db.add(user)
+            await db.flush()
             await db.refresh(user)

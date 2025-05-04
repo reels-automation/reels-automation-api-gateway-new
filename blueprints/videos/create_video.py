@@ -1,11 +1,15 @@
+# create_video.py
+
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
+from datetime import datetime
 
 from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
+from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 
 from auth.auth_bearer import JWTBearer
 from kafka.kafka_producer import KafkaProducerSingleton
@@ -59,9 +63,8 @@ class VideoRequest(BaseModel):
     random_amount_images: int
     gpt_model: str
 
-async def check_and_decrease_credits(db: AsyncSession, user_service, roles_service, user, username):
-    user_role = await user_service.get_role_from_user_uuid(db, user.id)
-    current_user_role = await roles_service.get_role_name_by_uuid(db, user_role.role_id)
+async def check_and_decrease_credits(db: AsyncSession, user_service, user_roles_service, roles_service, user, username):
+    current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
 
     if current_user_role not in await roles_service.get_premium_roles(db):
         if not await user_service.can_make_post(db, username):
@@ -75,17 +78,20 @@ async def create_video(
     db: AsyncSession = Depends(get_db)
 ):
     user_service = UserServicePostgres()
+    user_roles_service = UserRolesServicePostgres()
     roles_service = RolesServicePostgres()
 
     decoded_token = decode_jwt(token)
     username = decoded_token["username"]
 
-    user = await user_service.get_user_by_name(db, username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    async with db.begin():  # single transaction for credit check + decrement
+        user = await user_service.get_user_by_name(db, username)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    await check_and_decrease_credits(db, user_service, roles_service, user, username)
+        await check_and_decrease_credits(db, user_service, user_roles_service, roles_service, user, username)
 
+    # transaction committed; now fire off Kafka
     data = {
         "tema": video.tema,
         "usuario": video.usuario,
@@ -100,16 +106,20 @@ async def create_video(
         "images": [image.dict() for image in video.images],
         "random_images": video.random_images,
         "random_amount_images": video.random_amount_images,
-        "gpt_model": video.gpt_model
+        "gpt_model": video.gpt_model,
+        "requested_at": datetime.utcnow().isoformat()
     }
 
-    topic = "temas"
-    key = "temas_input_humano"
-    value = str(data)
-
     try:
-        KafkaProducerSingleton.produce_message(topic=topic, key=key, value=value)
+        KafkaProducerSingleton.produce_message(
+            topic="temas",
+            key="temas_input_humano",
+            value=str(data)
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send message to Kafka: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to send message to Kafka: {e}")
 
-    return JSONResponse(content={"message": "Processing video creation request"}, status_code=200)
+    return JSONResponse(
+        content={"message": "Processing video creation request"},
+        status_code=status.HTTP_200_OK
+    )

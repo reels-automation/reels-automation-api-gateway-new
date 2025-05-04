@@ -3,22 +3,17 @@ from models.roles import Roles
 from database import get_db
 from sqlalchemy import select
 
-import asyncio
-
 async def create_default_roles():
-    required_roles = ["Admin", "User"]
+    # required_roles = ["Admin", "User"]
 
-    async with get_db() as session:
-        result = await session.execute(select(Roles))
-        existing_roles = {role.name for role in result.scalars().all()}
+    # async with get_db() as session:
+    #     result = await session.execute(select(Roles))
+    #     existing_roles = {role.name for role in result.scalars().all()}
 
-        for role_name in required_roles:
-            if role_name not in existing_roles:
-                new_role = Roles(name=role_name)
-                session.add(new_role)
+    #     for role_name in required_roles:
+    #         if role_name not in existing_roles:
+    #             new_role = Roles(name=role_name)
+    #             session.add(new_role)
 
-        await session.commit()
-
-# Si querés ejecutarlo como script directo:
-if __name__ == "__main__":
-    asyncio.run(create_default_roles())
+    #     await session.commit()
+    pass

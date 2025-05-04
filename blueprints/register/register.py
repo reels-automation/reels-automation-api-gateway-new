@@ -23,34 +23,38 @@ async def register(
     data: RegisterRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    username = data.username
-    email = data.email
-    password = data.password
-
     user_service = UserServicePostgres()
     password_service = PasswordServicePostgres()
     user_roles_service = UserRolesServicePostgres()
     roles_service = RolesServicePostgres()
 
-    existing_user = await user_service.get_user_by_name(db, username)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already taken")
+    async with db.begin():  # single transaction for the whole registration
+        # 1) Check for existing username
+        existing_user = await user_service.get_user_by_name(db, data.username)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username already taken")
 
-    new_user = await user_service.create_user(db, username, email)
-    await password_service.create_password(db, new_user.id, password)
+        # 2) Create User
+        new_user = await user_service.create_user(db, data.username, data.email)
 
-    role_id = await roles_service.get_role_by_name(db, "User")
-    if not role_id:
-        raise HTTPException(status_code=500, detail="Role 'User' not found")
-    
-    await user_roles_service.create_user_role(db, role_id, new_user.id)
+        # 3) Create Password
+        await password_service.create_password(db, new_user.id, data.password)
 
+        # 4) Assign Role
+        role_id = await roles_service.get_role_by_name(db, "User")
+        if not role_id:
+            raise HTTPException(status_code=500, detail="Role 'User' not found")
+
+        await user_roles_service.create_user_role(db, role_id, new_user.id)
+
+    # transaction is committed here
+
+    await db.refresh(new_user)
     token_data = {
         "sub": str(new_user.id),
         "username": new_user.name,
         "role": "User"
     }
-
     access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
 
     return JSONResponse(
