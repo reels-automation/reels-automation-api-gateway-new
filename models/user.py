@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Text, String, Numeric
-from server_base import Base
+from database import Base
 from sqlalchemy.orm import relationship
 
 class User(Base):

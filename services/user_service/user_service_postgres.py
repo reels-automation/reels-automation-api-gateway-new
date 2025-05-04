@@ -1,68 +1,33 @@
-"""UserServicePostgres
-Esta clase es la implementacion de la interfaz UserService para postgres.
-Sirve para crear y obtener usuarios de la base de datos Postgres.
-Esta clase utiliza SQLAlchemy para interactuar con la base de datos.
-    Returns:
-        _type_: _description_
-"""
 from services.user_service.user_service import UserService
 from models.user import User
-from server_base import Session
-
-session = Session()
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 class UserServicePostgres(UserService):
 
-    def create_user(self, username: str, email: str) -> User:
-        """Inserta un registro de usuario a la base de datos de postgres
-
-        Args:
-            username (str)
-            email (str)
-        
-        Return:
-            new_user (str): el user creado
-        """
-        new_user = User(
-            name = username,
-            email = email
-        )        
-        session.add(new_user)
-        session.commit()
+    async def create_user(self, db: AsyncSession, username: str, email: str) -> User:
+        new_user = User(name=username, email=email)
+        async with db.begin():
+            db.add(new_user)
+        await db.refresh(new_user)
         return new_user
-    
-    def get_user_by_name(self, username: str) -> User:
-        """Obtiene un usuario en base a el nombre de usuario.
 
-        Args:
-            username (str): El nombre del usuario.
-        """
-        
-        user = session.query(User).filter_by(name=username).first()
-        
-        return user
+    async def get_user_by_name(self, db: AsyncSession, username: str) -> User:
+        stmt = select(User).filter_by(name=username)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
 
-    def get_user_credits(self, username:str) -> int:
-        """Obtiene los creditos que tiene un usuario
+    async def get_user_credits(self, db: AsyncSession, username: str) -> int:
+        user = await self.get_user_by_name(db, username)
+        return user.credits if user else 0
 
-        Args:
-            username (str): nombre del usuario
+    async def can_make_post(self, db: AsyncSession, username: str) -> bool:
+        return await self.get_user_credits(db, username) > 0
 
-        Returns:
-            int: Cantidad de creditosdel usuario
-        """
-        
-        user = self.get_user_by_name(username)
-        return user.credits
-
-    def can_make_post(self, username:str)-> bool:
-
-        return self.get_user_credits(username) > 0
-
-    def decrease_user_token(self, username:str):
-        user = self.get_user_by_name(username)
-
+    async def decrease_user_token(self, db: AsyncSession, username: str):
+        user = await self.get_user_by_name(db, username)
         if user and user.credits > 0:
             user.credits -= 1
-            session.commit()
-            session.refresh(user)
+            async with db.begin():
+                db.add(user)
+            await db.refresh(user)

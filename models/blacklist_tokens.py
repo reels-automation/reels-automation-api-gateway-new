@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Text
-from server_base import Base
+from database import Base
 
 class BlacklistTokens(Base):
     __tablename__ = 'blacklist_tokens'

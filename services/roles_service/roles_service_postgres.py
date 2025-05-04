@@ -1,52 +1,33 @@
-"""RolesServicePostgres
-This module provides an implementation of the RolesService for PostgreSQL.
-It includes methods to add, delete, update, and retrieve roles from the database.
-
-    Returns:
-        _type_: _description_
-"""
 from services.roles_service.roles_service import RolesService
 from models.roles import Roles
-from server_base import Base, engine, Session
-
-session = Session()
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 class RolesServicePostgres(RolesService):
-    """_summary_
 
-    Args:
-        RolesService (_type_): _description_
-    """
+    async def add_role(self, db: AsyncSession, role_name: str):
+        new_role = Roles(name=role_name)
+        async with db.begin():
+            db.add(new_role)
+        await db.refresh(new_role)
 
-    def add_role(self, role_name: str):
-        """_summary_
-
-        Args:
-            role_name (str): _description_
-        """
-        new_role = Roles(
-            name = role_name
-        )
-        session.add(new_role)
-        session.commit()
-
-    def delete_role(self):
-        """_summary_
-        """
+    async def delete_role(self, db: AsyncSession):
         pass
 
-    def update_role(self):
-        """_summary_
-        """
+    async def update_role(self, db: AsyncSession):
         pass
-    
-    def get_role_by_name(self, role: str):
-        user = session.query(Roles).filter_by(name=role).first()    
-        return user.id
-    
-    def get_role_name_by_uuid(self, uuid:str)-> str:
-        role = session.query(Roles).filter_by(id=uuid).first()
-        return role.name
 
-    def get_premium_roles(self):
+    async def get_role_by_name(self, db: AsyncSession, role: str):
+        stmt = select(Roles).where(Roles.name == role)
+        result = await db.execute(stmt)
+        user = result.scalar_one_or_none()
+        return user.id if user else None
+
+    async def get_role_name_by_uuid(self, db: AsyncSession, uuid: str) -> str:
+        stmt = select(Roles).where(Roles.id == uuid)
+        result = await db.execute(stmt)
+        role = result.scalar_one_or_none()
+        return role.name if role else None
+
+    async def get_premium_roles(self):
         return ["Admin"]

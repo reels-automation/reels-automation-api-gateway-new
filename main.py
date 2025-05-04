@@ -8,7 +8,7 @@ from blueprints.login.login import login_router
 from blueprints.register.register import register_router
 from blueprints.home.home import home_router
 from blueprints.videos.create_video import create_video_router
-from server_base import Base, engine
+from database import Base, engine
 from utils.utils import create_default_roles
 
 app = FastAPI()
@@ -26,5 +26,10 @@ app.include_router(register_router)
 app.include_router(home_router)
 app.include_router(create_video_router)
 
-Base.metadata.create_all(engine)
-create_default_roles()
+import os
+@app.on_event("startup")
+async def startup():
+    if os.getenv("ENVIRONMENT") == "DEVELOPMENT":
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    await create_default_roles()
