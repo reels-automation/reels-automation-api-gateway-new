@@ -16,7 +16,12 @@ class UserServicePostgres(UserService):
         stmt = select(User).filter_by(name=username)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
-
+    
+    async def get_user_by_email(self, db: AsyncSession, email: str) -> User:
+        stmt = select(User).filter_by(email=email)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+    
     async def get_user_credits(self, db: AsyncSession, username: str) -> int:
         user = await self.get_user_by_name(db, username)
         return user.credits if user else 0

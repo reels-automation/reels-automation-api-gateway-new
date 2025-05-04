@@ -30,9 +30,17 @@ async def register(
 
     async with db.begin():  # single transaction for the whole registration
         # 1) Check for existing username
+
+        if len(data.username) > 15:
+            raise HTTPException(status_code=400, detail="Username too long. 15 characters max")
+
         existing_user = await user_service.get_user_by_name(db, data.username)
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already taken")
+        
+        existing_email = await user_service.get_user_by_email(db, data.email)
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Email already taken")
 
         # 2) Create User
         new_user = await user_service.create_user(db, data.username, data.email)
