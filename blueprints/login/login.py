@@ -1,8 +1,7 @@
-# login.py
-
-from pydantic import BaseModel
+import logging
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +11,7 @@ from services.password_service.password_service_postgres import PasswordServiceP
 from utils.jwt_utils import create_access_token
 
 login_router = APIRouter()
+logger = logging.getLogger(__name__)
 
 class LoginRequest(BaseModel):
     username: str
@@ -25,24 +25,35 @@ async def login(
     user_service = UserServicePostgres()
     password_service = PasswordServicePostgres()
 
-    user = await user_service.get_user_by_name(db, data.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        user = await user_service.get_user_by_name(db, data.username)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    login_success = await password_service.is_same_password(db, user.id, data.password)
-    if not login_success:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Error. Credenciales incorrectas."
+        login_success = await password_service.is_same_password(db, user.id, data.password)
+        if not login_success:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Error. Credenciales incorrectas."
+            )
+
+        token_data = {
+            "sub": str(user.id),
+            "username": user.name
+        }
+        access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
+
+        return JSONResponse(
+            content={"access_token": access_token, "token_type": "bearer"},
+            status_code=status.HTTP_200_OK
         )
-
-    token_data = {
-        "sub": str(user.id),
-        "username": user.name
-    }
-    access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
-
-    return JSONResponse(
-        content={"access_token": access_token, "token_type": "bearer"},
-        status_code=status.HTTP_200_OK
-    )
+    
+    except HTTPException as e:
+        raise e
+    
+    except Exception as e:
+        logger.error(f"Unexpected error during login: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ocurrió un error interno. Intenta más tarde."
+        )
