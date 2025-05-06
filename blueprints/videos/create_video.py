@@ -49,7 +49,7 @@ class BackgroundMusicItem(BaseModel):
 
 class VideoRequest(BaseModel):
     tema: str 
-    usuario: int
+    usuario: str
     idioma: str
     personaje: str
     script: str
@@ -93,7 +93,7 @@ async def create_video(
     # transaction committed; now fire off Kafka
     data = {
         "tema": video.tema,
-        "usuario": video.tema,
+        "usuario": video.usuario,
         "idioma": video.idioma,
         "personaje": video.personaje,
         "script": video.script,

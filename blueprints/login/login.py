@@ -38,7 +38,7 @@ async def login(
 
     token_data = {
         "sub": str(user.id),
-        "username": user.name
+        "username": user.name,
     }
     access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
 

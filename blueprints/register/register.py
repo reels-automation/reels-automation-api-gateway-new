@@ -61,7 +61,6 @@ async def register(
     token_data = {
         "sub": str(new_user.id),
         "username": new_user.name,
-        "role": "User"
     }
     access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
 

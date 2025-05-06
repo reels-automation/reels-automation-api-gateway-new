@@ -9,3 +9,4 @@ datetime
 quixstreams
 werkzeug
 asyncpg
+motor
