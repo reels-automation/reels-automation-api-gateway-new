@@ -9,6 +9,7 @@ from blueprints.register.register import register_router
 from blueprints.home.home import home_router
 from blueprints.videos.create_video import create_video_router
 from blueprints.mongo.mongo import mongo_router
+from blueprints.mercadopago_api.mercadopago_api import mercadopago_router
 from database import Base, engine
 from utils.utils import create_default_roles
 
@@ -27,7 +28,7 @@ app.include_router(register_router)
 app.include_router(home_router)
 app.include_router(create_video_router)
 app.include_router(mongo_router)
-
+app.include_router(mercadopago_router)
 import os
 @app.on_event("startup")
 async def startup():

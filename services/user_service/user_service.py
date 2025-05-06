@@ -29,3 +29,6 @@ class UserService(ABC):
     def get_user_credits(self):
         pass
 
+    def add_user_token(self):
+        pass
+
