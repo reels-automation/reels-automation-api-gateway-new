@@ -28,34 +28,26 @@ async def register(
     user_roles_service = UserRolesServicePostgres()
     roles_service = RolesServicePostgres()
 
-    async with db.begin():  # single transaction for the whole registration
-        # 1) Check for existing username
+    async with db.begin():
 
         if len(data.username) > 15:
-            raise HTTPException(status_code=400, detail="Username too long. 15 characters max")
+            raise HTTPException(status_code=400, detail="El nombre de usuario no puede tener más de 15 caracteres")
 
         existing_user = await user_service.get_user_by_name(db, data.username)
         if existing_user:
-            raise HTTPException(status_code=400, detail="Username already taken")
+            raise HTTPException(status_code=400, detail="Nombre de usuario ya tomado")
         
         existing_email = await user_service.get_user_by_email(db, data.email)
         if existing_email:
-            raise HTTPException(status_code=400, detail="Email already taken")
+            raise HTTPException(status_code=400, detail="Email ya registrado")
 
-        # 2) Create User
         new_user = await user_service.create_user(db, data.username, data.email)
 
-        # 3) Create Password
         await password_service.create_password(db, new_user.id, data.password)
 
-        # 4) Assign Role
         role_id = await roles_service.get_role_by_name(db, "User")
-        if not role_id:
-            raise HTTPException(status_code=500, detail="Role 'User' not found")
 
         await user_roles_service.create_user_role(db, role_id, new_user.id)
-
-    # transaction is committed here
 
     await db.refresh(new_user)
     token_data = {

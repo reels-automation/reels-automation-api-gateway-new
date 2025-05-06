@@ -81,13 +81,13 @@ async def create_video(
     async with db.begin():  # single transaction for credit check + decrement
         user = await user_service.get_user_by_name(db, username)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
         
         current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
 
         if current_user_role not in await roles_service.get_premium_roles(db):
             if not await user_service.can_make_post(db, username):
-                raise HTTPException(status_code=400, detail="You don't have enough credits")
+                raise HTTPException(status_code=400, detail="Creditos insuficientes")
             await user_service.decrease_user_token(db, username)
 
     # transaction committed; now fire off Kafka
@@ -115,7 +115,7 @@ async def create_video(
             value=str(data)
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send message to Kafka: {e}")
+        raise HTTPException(status_code=500, detail=f"Error del servidor: {e}")
 
     return JSONResponse(
         content={"message": "Processing video creation request"},
