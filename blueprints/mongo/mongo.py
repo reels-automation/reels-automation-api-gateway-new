@@ -60,6 +60,39 @@ class VideoRequest(BaseModel):
     gpt_model: str
     url:str
 
+class MinioRequest(BaseModel):
+    video_name: str
+
+class UserId(BaseModel):
+    user_id: str
+
+
+@mongo_router.post("/get-videos-user")
+async def get_videos_from_user(
+    user_id: UserId,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    try:
+        filter = {"usuario": user_id.user_id}
+        collection_videos = db.videos
+        cursor = collection_videos.find(filter, {"_id": False})
+        data = await cursor.to_list(length=None)
+
+        return JSONResponse(
+            content={
+                "videos": data,
+                "message": f"Se encontraron {len(data)} videos para el usuario {user_id}"
+            },
+            status_code=status.HTTP_200_OK
+        )
+
+    except Exception as ex:
+        print("❌ Error al obtener los videos del usuario:", ex)
+        return JSONResponse(
+            content={"message": "Error interno del servidor"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 @mongo_router.post("/add-video")
 async def add_video(
     video: VideoRequest,
@@ -72,7 +105,7 @@ async def add_video(
     try:
         data = {
             "tema": video.tema,
-            "usuario": video.usuario,  # Corregido: estaba mal en tu código
+            "usuario": video.usuario,  
             "idioma": video.idioma,
             "personaje": video.personaje,
             "script": video.script,
@@ -109,8 +142,7 @@ async def add_video(
         print(e)
         raise HTTPException(status_code=500, detail="Error al insertar en MongoDB")
 
-class MinioRequest(BaseModel):
-    video_name: str
+
 
  
 @mongo_router.post("/get-video")
