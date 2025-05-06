@@ -10,3 +10,4 @@ quixstreams
 werkzeug
 asyncpg
 motor
+minio

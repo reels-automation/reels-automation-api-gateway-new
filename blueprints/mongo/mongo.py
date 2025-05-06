@@ -7,6 +7,8 @@ from datetime import timedelta
 from typing import List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from database_mongo import get_db
+from minio_client import get_minio_client
+from minio import Minio
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
 from utils.jwt_utils import create_access_token
@@ -105,3 +107,26 @@ async def add_video(
         print(e)
         raise HTTPException(status_code=500, detail="Error al insertar en MongoDB")
 
+class MinioRequest(BaseModel):
+    video_name: str
+
+ 
+@mongo_router.post("/get-video")
+async def get_video(
+    video_name:MinioRequest, # it must includ the name with the extension (example.mp4)
+    minio_client: Minio = Depends(get_minio_client)
+):
+    try:
+        url = minio_client.presigned_get_object(
+            "videos-homero",
+            video_name.video_name,
+            expires=timedelta(days=7)
+        )
+        return {"url": url}
+    
+    except Exception as ex:
+        print("Error al buscar video en minio. Video no encontrado")
+    
+
+
+    
