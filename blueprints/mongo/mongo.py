@@ -58,6 +58,7 @@ class VideoRequest(BaseModel):
     random_images: bool
     random_amount_images: int
     gpt_model: str
+    url:str
 
 @mongo_router.post("/add-video")
 async def add_video(
@@ -83,7 +84,8 @@ async def add_video(
             "images": [image.model_dump() for image in video.images],
             "random_images": video.random_images,
             "random_amount_images": video.random_amount_images,
-            "gpt_model": video.gpt_model
+            "gpt_model": video.gpt_model,
+            "url": video.url
         }
 
         print("🛠 Datos procesados para insertar en MongoDB:")
