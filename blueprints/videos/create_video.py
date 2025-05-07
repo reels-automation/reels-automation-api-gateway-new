@@ -77,6 +77,7 @@ async def create_video(
 
     decoded_token = decode_jwt(token)
     username = decoded_token["username"]
+    sub = decoded_token["sub"]
 
     async with db.begin():  # single transaction for credit check + decrement
         user = await user_service.get_user_by_name(db, username)
@@ -86,7 +87,7 @@ async def create_video(
         current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
 
         if current_user_role not in await roles_service.get_premium_roles(db):
-            if not await user_service.can_make_post(db, username):
+            if not await user_service.can_make_post(db, sub):
                 raise HTTPException(status_code=400, detail="Creditos insuficientes")
             await user_service.decrease_user_token(db, username)
 

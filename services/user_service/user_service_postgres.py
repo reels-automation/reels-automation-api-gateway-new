@@ -27,12 +27,12 @@ class UserServicePostgres(UserService):
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
     
-    async def get_user_credits(self, db: AsyncSession, username: str) -> int:
-        user = await self.get_user_by_name(db, username)
+    async def get_user_credits(self, db: AsyncSession, uuid: str) -> int:
+        user = await self.get_user_by_uuid(db, uuid)
         return user.credits if user else 0
 
-    async def can_make_post(self, db: AsyncSession, username: str) -> bool:
-        return await self.get_user_credits(db, username) > 0
+    async def can_make_post(self, db: AsyncSession, uuid: str) -> bool:
+        return await self.get_user_credits(db, uuid) > 0
 
     async def decrease_user_token(self, db: AsyncSession, username: str):
         user = await self.get_user_by_name(db, username)
