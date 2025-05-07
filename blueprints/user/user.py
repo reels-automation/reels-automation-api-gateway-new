@@ -26,7 +26,6 @@ async def get_user_tokens(
 
     async with db.begin():            
         try:
-            print("aaaaaaaaaaaaaaaaaaaaaaaaaAAAAaa: " , data.user_id)
             credits = await user_service.get_user_credits(db, data.user_id)
         except:
             return JSONResponse(

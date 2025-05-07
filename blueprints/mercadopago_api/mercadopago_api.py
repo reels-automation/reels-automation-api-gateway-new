@@ -72,7 +72,7 @@ async def create_preference(data: PreferenceRequest):
         "items": [
             {
                 "id": "message",
-                "unit_price": 5000,
+                "unit_price": 2,
                 "quantity": 1,
                 "title": "10 Tokens"
             }

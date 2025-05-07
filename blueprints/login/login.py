@@ -26,7 +26,10 @@ async def login(
     password_service = PasswordServicePostgres()
 
     try:
-        user = await user_service.get_user_by_name(db, data.username)
+        
+        async with db.begin():
+            user = await user_service.get_user_by_name(db, data.username) #Aca tira error
+        
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 

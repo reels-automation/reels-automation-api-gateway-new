@@ -13,6 +13,7 @@ class UserServicePostgres(UserService):
         return new_user
 
     async def get_user_by_name(self, db: AsyncSession, username: str) -> User:
+        print("El username aca es... ", username)
         stmt = select(User).filter_by(name=username)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
