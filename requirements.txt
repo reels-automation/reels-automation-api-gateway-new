@@ -1,8 +1,13 @@
-flask
-flask-cors
 fastapi
 uvicorn
 sqlalchemy
 python-dotenv
 psycopg2-binary
-flask-jwt-extended
+fastapi[standard]
+pyjwt
+datetime
+quixstreams
+werkzeug
+asyncpg
+motor
+minio

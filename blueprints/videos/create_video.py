@@ -1,23 +1,124 @@
-from flask import Blueprint, render_template, redirect, jsonify,request
+# create_video.py
+
+from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
+from datetime import datetime
+
+from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
-from services.password_service.password_service_postgres import PasswordServicePostgres
-from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
-from flask_jwt_extended import create_access_token
+from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt
+from auth.auth_bearer import JWTBearer
+from kafka.kafka_producer import KafkaProducerSingleton
+from utils.jwt_utils import decode_jwt
 
-create_video_blueprint = Blueprint("create_video", __name__)
+from pydantic import BaseModel
 
-@create_video_blueprint.route("/create-video", methods=["GET"])
-@jwt_required()
-def create_video():
-    token = get_jwt()
+create_video_router = APIRouter()
 
-    if token["role"] != "Admin":
-        return jsonify({"message": "No se puede crear el video. No sos admin"})
+class ImageItem(BaseModel):
+    image_name: str
+    image_modifier: str
+    file_getter: str
+    image_directory: str
+    timestamp: int
+    duration: int
 
-    return jsonify({"message":"Video creado correctamente"})
+class AudioItem(BaseModel):
+    tts_audio_name: str 
+    tts_audio_directory: str
+    file_getter: str
+    pitch: int
+    tts_voice: str
+    tts_rate: int
+    pth_voice: str
+
+class SubtitleItem(BaseModel):
+    subtitles_name: str
+    file_getter: str
+    subtitles_directory: str
+
+class BackgroundMusicItem(BaseModel):
+    audio_name: str
+    file_getter: str
+    start_time: int
+    duration: int
+
+class VideoRequest(BaseModel):
+    tema: str 
+    usuario: str
+    idioma: str
+    personaje: str
+    script: str
+    audio_item: List[AudioItem]
+    subtitle_item: List[SubtitleItem]
+    author: str
+    gameplay_name: str
+    background_music: List[BackgroundMusicItem]
+    images: List[ImageItem]
+    random_images: bool
+    random_amount_images: int
+    gpt_model: str
+
+
+
+@create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
+async def create_video(
+    video: VideoRequest,
+    token: dict = Depends(JWTBearer()),
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserServicePostgres()
+    user_roles_service = UserRolesServicePostgres()
+    roles_service = RolesServicePostgres()
+
+    decoded_token = decode_jwt(token)
+    username = decoded_token["username"]
+    sub = decoded_token["sub"]
+
+    async with db.begin():  # single transaction for credit check + decrement
+        user = await user_service.get_user_by_name(db, username)
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+        current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
+
+        if current_user_role not in await roles_service.get_premium_roles(db):
+            if not await user_service.can_make_post(db, sub):
+                raise HTTPException(status_code=400, detail="Creditos insuficientes")
+            await user_service.decrease_user_token(db, username)
+
+    # transaction committed; now fire off Kafka
+    data = {
+        "tema": video.tema,
+        "usuario": video.usuario,
+        "idioma": video.idioma,
+        "personaje": video.personaje,
+        "script": video.script,
+        "audio_item": [audio.model_dump() for audio in video.audio_item],
+        "subtitle_item": [subtitle.model_dump() for subtitle in video.subtitle_item],
+        "author": video.author,
+        "gameplay_name":video.gameplay_name,
+        "background_music":[music.model_dump() for music in video.background_music],
+        "images":[image.model_dump() for image in video.images],
+        "random_images":video.random_images,
+        "random_amount_images":video.random_amount_images,
+        "gpt_model": video.gpt_model
+    }
+
+    try:
+        KafkaProducerSingleton.produce_message(
+            topic="temas",
+            key="temas_input_humano",
+            value=str(data)
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error del servidor: {e}")
+
+    return JSONResponse(
+        content={"message": "Processing video creation request"},
+        status_code=status.HTTP_200_OK
+    )

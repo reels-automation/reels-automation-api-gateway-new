@@ -1,16 +1,20 @@
+# services/user_roles_service/user_roles_service_postgres.py
+
 from services.user_roles_service.user_roles_service import UserRolesService
 from models.roles import UserRole
-from server_base import Session
-
-session = Session()
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 class UserRolesServicePostgres(UserRolesService):
 
-    def create_user_role(self, role_uuid: str, user_uuid: str) -> str:
-        new_role = UserRole(
-            user_id = user_uuid,
-            role_id = role_uuid
-        )        
-        session.add(new_role)
-        session.commit()
+    async def create_user_role(self, db: AsyncSession, role_uuid: str, user_uuid: str) -> str:
+        new_role = UserRole(user_id=user_uuid, role_id=role_uuid)
+        db.add(new_role)
+        await db.flush()          # assign new_role.id
+        await db.refresh(new_role)
         return new_role.id
+
+    async def get_role_from_user_uuid(self, db: AsyncSession, user_uuid: str) -> UserRole:
+        stmt = select(UserRole).where(UserRole.user_id == user_uuid)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()

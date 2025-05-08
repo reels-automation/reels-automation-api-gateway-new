@@ -1,36 +1,62 @@
-from flask import Blueprint, render_template, redirect, jsonify,request
+from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import timedelta
+from pydantic import BaseModel
+
+from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
 from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
-from flask_jwt_extended import create_access_token
+from utils.jwt_utils import create_access_token
 
+register_router = APIRouter()
 
-register_blueprint = Blueprint("register", __name__)
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
 
-@register_blueprint.route("/register", methods=["POST"])
-def register():
-    data = request.get_json()
-    username = data["username"]
-    email = data["email"]
-    password = data["password"]
+@register_router.post("/register")
+async def register(
+    data: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    user_service = UserServicePostgres()
+    password_service = PasswordServicePostgres()
+    user_roles_service = UserRolesServicePostgres()
+    roles_service = RolesServicePostgres()
 
-    user_service_postgres = UserServicePostgres()
-    password_service_postgres = PasswordServicePostgres()
-    user_roles_service_postgres = UserRolesServicePostgres()
-    roles_service_postgres = RolesServicePostgres()
+    async with db.begin():
 
-    new_user = user_service_postgres.create_user(username, email)
-    password_service_postgres.create_password(new_user.id, password)
-    rol_id = roles_service_postgres.get_role_by_name("User")
-    user_roles_service_postgres.create_user_role(rol_id, new_user.id)
-    
-    additional_claims = {
-        "role": "User"
+        if len(data.username) > 15:
+            raise HTTPException(status_code=400, detail="El nombre de usuario no puede tener más de 15 caracteres")
+
+        existing_user = await user_service.get_user_by_name(db, data.username)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Nombre de usuario ya tomado")
+        
+        existing_email = await user_service.get_user_by_email(db, data.email)
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Email ya registrado")
+
+        new_user = await user_service.create_user(db, data.username, data.email)
+
+        await password_service.create_password(db, new_user.id, data.password)
+
+        role_id = await roles_service.get_role_by_name(db, "User")
+
+        await user_roles_service.create_user_role(db, role_id, new_user.id)
+
+    await db.refresh(new_user)
+    token_data = {
+        "sub": str(new_user.id),
+        "username": new_user.name,
     }
+    access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
 
-    access_token = create_access_token(identity=username,additional_claims=additional_claims)
-    
-    
-    print("Data: ", data)
-    return jsonify(access_token=access_token),201
+    return JSONResponse(
+        content={"access_token": access_token, "token_type": "bearer"},
+        status_code=status.HTTP_201_CREATED
+    )

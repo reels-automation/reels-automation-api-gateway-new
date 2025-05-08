@@ -1,3 +1,5 @@
+"""User Roles Service Interface
+"""
 from abc import ABC
 
 class UserRolesService(ABC):

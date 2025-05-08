@@ -1,11 +1,20 @@
+create-env:
+	@if [ ! -d ".env" ]; then \
+		echo "Creating Python virtual environment in .env using virtualenv..."; \
+		virtualenv env; \
+	else \
+		echo "Virtual environment already exists."; \
+	fi
+
 install:
-	pip install --upgrade pip &&\
-		pip install -r requirements.txt
+	@. env/bin/activate && \
+	pip install --upgrade pip && \
+	pip install -r requirements.txt
 
 python-run:
 	sed -i '/^ENVIRONMENT/d' .env
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env
-	bash -c 'source env/bin/activate && python server.py'
+	bash -c 'source env/bin/activate && fastapi dev main.py --port 7080'
 
 run-postgres:
 	docker compose up

@@ -1,3 +1,9 @@
+"""UserService Interface
+This is an interface for the UserService class. It defines the methods that any implementation of the UserService class must have.
+This interface is designed to be used with a PostgreSQL database, but it can be adapted for other databases as well.
+
+"""
+
 from abc import ABC
 
 class UserService(ABC):
@@ -19,8 +25,10 @@ class UserService(ABC):
 
     def get_all_users(self):
         pass
-    
 
+    def get_user_credits(self):
+        pass
 
-    
+    def add_user_token(self):
+        pass
 
