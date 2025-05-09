@@ -160,7 +160,4 @@ async def get_video(
     
     except Exception as ex:
         print("Error al buscar video en minio. Video no encontrado")
-    
 
-
-    
