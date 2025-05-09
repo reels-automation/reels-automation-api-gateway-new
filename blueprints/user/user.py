@@ -24,14 +24,16 @@ async def get_user_tokens(
     user_service = UserServicePostgres()
 
 
-    async with db.begin():            
-        try:
+    try:
+        async with db.begin():
             credits = await user_service.get_user_credits(db, data.user_id)
-        except:
-            return JSONResponse(
-            content={"Bad request": str(data.user_id)},
-            status_code=status.HTTP_202_ACCEPTED)
-        
+    except Exception as e:
+        await db.rollback()  # aseguramos revertir la transacción si falló
+        return JSONResponse(
+            content={"error": f"Bad request for user {data.user_id}", "details": str(e)},
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+    
     return JSONResponse(
         content={"credits": int(credits)},
         status_code=status.HTTP_202_ACCEPTED
