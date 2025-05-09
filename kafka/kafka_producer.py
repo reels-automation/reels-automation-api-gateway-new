@@ -1,4 +1,5 @@
 from quixstreams import Application
+from settings import KAFKA_URL
 
 class KafkaProducerSingleton:
     _instance = None
@@ -6,7 +7,7 @@ class KafkaProducerSingleton:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(KafkaProducerSingleton, cls).__new__(cls)
-            cls._instance._application = Application(broker_address="localhost:9092", loglevel="DEBUG")
+            cls._instance._application = Application(broker_address=KAFKA_URL, loglevel="DEBUG")
         return cls._instance
 
     @classmethod

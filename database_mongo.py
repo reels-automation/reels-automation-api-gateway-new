@@ -1,10 +1,10 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
+from settings import MONGO_URL
 
-load_dotenv()
 
-client = AsyncIOMotorClient("mongodb://localhost:27017/")
+client = AsyncIOMotorClient(MONGO_URL)
 db = client["reels_automation"]
 collection_temas = db.temas
 collection_videos = db.videos
