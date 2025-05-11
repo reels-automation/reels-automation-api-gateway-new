@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.exc import OperationalError, InterfaceError
 from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
@@ -26,8 +26,7 @@ async def login(
     password_service = PasswordServicePostgres()
 
     try:
-        
-        user = await user_service.get_user_by_name(db, data.username) #Aca tira error
+        user = await user_service.get_user_by_name(db, data.username)
         
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -39,23 +38,17 @@ async def login(
                 detail="Error. Credenciales incorrectas."
             )
 
-        token_data = {
-            "sub": str(user.id),
-            "username": user.name
-        }
-        access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
-
-        return JSONResponse(
-            content={"access_token": access_token, "token_type": "bearer"},
-            status_code=status.HTTP_200_OK
-        )
-    
-    except HTTPException as e:
-        raise e
-    
-    except Exception as e:
-        logger.error(f"Unexpected error during login: {e}", exc_info=True)
+        # Resto de tu lógica para generar el token...
+        
+    except (OperationalError, InterfaceError) as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ocurrió un error interno. Intenta más tarde."
+            status_code=503,
+            detail="Service temporarily unavailable"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
         )

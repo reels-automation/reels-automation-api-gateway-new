@@ -72,7 +72,7 @@ async def create_preference(data: PreferenceRequest):
         "items": [
             {
                 "id": "message",
-                "unit_price": 2,
+                "unit_price": 5000,
                 "quantity": 1,
                 "title": "10 Tokens"
             }
@@ -82,9 +82,9 @@ async def create_preference(data: PreferenceRequest):
             "tokens": 10
         },
         "back_urls": {
-        "success": "http://localhost:5173/",
-        "pending": "http://localhost:5173/",
-        "failure": "http://localhost:5173/"
+        "success": "https://aprendiendoconpersonajes.duckdns.org/",
+        "pending": "https://aprendiendoconpersonajes.duckdns.org/",
+        "failure": "https://aprendiendoconpersonajes.duckdns.org/"
     },
 
     }
