@@ -38,9 +38,19 @@ async def login(
                 detail="Error. Credenciales incorrectas."
             )
 
-        # Resto de tu lógica para generar el token...
+        token_data = {
+            "sub": str(user.id),
+            "username": user.name
+        }
+        access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
+
+        return JSONResponse(
+            content={"access_token": access_token, "token_type": "bearer"},
+            status_code=status.HTTP_200_OK
+        )
         
     except (OperationalError, InterfaceError) as e:
+        print("Exception: ", e)
         raise HTTPException(
             status_code=503,
             detail="Service temporarily unavailable"
