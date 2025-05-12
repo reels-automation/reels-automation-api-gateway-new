@@ -54,7 +54,7 @@ async def register(
         "sub": str(new_user.id),
         "username": new_user.name,
     }
-    access_token = create_access_token(token_data, expires_delta=timedelta(hours=1))
+    access_token = create_access_token(token_data, expires_delta=timedelta(weeks=24))
 
     return JSONResponse(
         content={"access_token": access_token, "token_type": "bearer"},

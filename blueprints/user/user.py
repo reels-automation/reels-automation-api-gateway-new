@@ -9,7 +9,6 @@ from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
 from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
-from utils.jwt_utils import create_access_token
 
 user_router = APIRouter()
 

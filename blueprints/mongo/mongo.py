@@ -11,7 +11,6 @@ from minio_client import get_minio_client
 from minio import Minio
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.password_service.password_service_postgres import PasswordServicePostgres
-from utils.jwt_utils import create_access_token
 
 mongo_router = APIRouter()
 

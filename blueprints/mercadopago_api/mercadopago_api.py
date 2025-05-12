@@ -72,14 +72,14 @@ async def create_preference(data: PreferenceRequest):
         "items": [
             {
                 "id": "message",
-                "unit_price": 5000,
+                "unit_price": 500,
                 "quantity": 1,
-                "title": "10 Tokens"
+                "title": "1 Token"
             }
         ],
         "metadata": {
             "user_id": data.user_id,
-            "tokens": 10
+            "tokens": 1
         },
         "back_urls": {
         "success": "https://aprendiendoconpersonajes.duckdns.org/",
