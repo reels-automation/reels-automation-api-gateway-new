@@ -1,6 +1,5 @@
 #!/bin/bash
-cp .env.development .env
-
+cp .env.deployment .env
 source env/bin/activate
 gunicorn main:app \
   --workers 4 \

@@ -47,6 +47,8 @@ Thumbs.db
 
 # dotenv file for environment variables
 .env
+.env.deployment
+.env.development
 
 
 # Coverage reports
