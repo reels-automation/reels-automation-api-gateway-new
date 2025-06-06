@@ -76,7 +76,6 @@ async def get_videos_from_user(
         collection_videos = db.videos
         cursor = collection_videos.find(filter, {"_id": False})
         data = await cursor.to_list(length=None)
-
         return JSONResponse(
             content={
                 "videos": data,
@@ -84,11 +83,71 @@ async def get_videos_from_user(
             },
             status_code=status.HTTP_200_OK
         )
+    
 
     except Exception as ex:
         print("❌ Error al obtener los videos del usuario:", ex)
         return JSONResponse(
             content={"message": "Error interno del servidor"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@mongo_router.post("/get-videos-url")
+async def get_videos_url(
+    user_id: UserId,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    try:
+        collection_videos = db.videos
+
+        # Filtrar videos del usuario que NO están descargados todavía
+        filter = {
+            "usuario": user_id.user_id,
+            "$or": [
+                {"DOWNLOADED": {"$exists": False}},
+                {"DOWNLOADED": False}
+            ]
+        }
+
+        # Buscar esos videos (solo url y DOWNLOADED)
+        projection = {"_id": False, "url": True, "DOWNLOADED": True}
+        cursor = collection_videos.find(filter, projection)
+        videos_to_download = await cursor.to_list(length=None)
+
+        if not videos_to_download:
+            # Si no hay videos nuevos para descargar
+            return JSONResponse(
+                content={
+                    "urls": [],
+                    "message": "No hay videos nuevos para descargar."
+                },
+                status_code=status.HTTP_200_OK
+            )
+
+        # Obtener todos los URLs para filtrar de nuevo en update_many
+        urls = [video["url"] for video in videos_to_download]
+
+        # Actualizar los videos que vamos a devolver para marcar DOWNLOADED: True
+        await collection_videos.update_many(
+            {
+                "usuario": user_id.user_id,
+                "url": {"$in": urls}
+            },
+            {"$set": {"DOWNLOADED": True}}
+        )
+
+        # Devolver solo los videos que no estaban descargados antes (ahora ya marcados)
+        return JSONResponse(
+            content={
+                "urls": videos_to_download,
+                "message": f"Se encontraron {len(videos_to_download)} videos nuevos para descargar."
+            },
+            status_code=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            content={"message": "Error al obtener o actualizar videos", "error": str(e)},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
