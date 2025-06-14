@@ -6,11 +6,12 @@ This interface is designed to be used with a PostgreSQL database, but it can be 
 
 from abc import ABC
 
+
 class UserService(ABC):
 
     def create_user(self):
         pass
-    
+
     def update_user(self):
         pass
 
@@ -31,4 +32,3 @@ class UserService(ABC):
 
     def add_user_token(self):
         pass
-

@@ -5,6 +5,7 @@ from fastapi import status
 
 home_router = APIRouter()
 
+
 @home_router.get("/")
 async def home():
     return "maria"

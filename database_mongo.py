@@ -9,7 +9,6 @@ db = client["reels_automation"]
 collection_temas = db.temas
 collection_videos = db.videos
 
+
 async def get_db():
     yield db
-    
-

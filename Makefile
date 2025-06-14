@@ -11,6 +11,9 @@ install:
 	pip install --upgrade pip && \
 	pip install -r requirements.txt
 
+format:
+	black .
+
 python-run:
 	sed -i '/^ENVIRONMENT/d' .env
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env

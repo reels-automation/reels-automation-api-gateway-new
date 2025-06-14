@@ -3,6 +3,7 @@ from models.roles import Roles
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+
 class RolesServicePostgres(RolesService):
 
     async def add_role(self, db: AsyncSession, role_name: str):

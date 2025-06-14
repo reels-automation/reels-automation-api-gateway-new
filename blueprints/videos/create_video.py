@@ -9,7 +9,9 @@ from datetime import datetime
 from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
 from services.roles_service.roles_service_postgres import RolesServicePostgres
-from services.user_roles_service.user_roles_service_postgres import UserRolesServicePostgres
+from services.user_roles_service.user_roles_service_postgres import (
+    UserRolesServicePostgres,
+)
 
 from auth.auth_bearer import JWTBearer
 from kafka.kafka_producer import KafkaProducerSingleton
@@ -19,6 +21,7 @@ from pydantic import BaseModel
 
 create_video_router = APIRouter()
 
+
 class ImageItem(BaseModel):
     image_name: str
     image_modifier: str
@@ -27,8 +30,9 @@ class ImageItem(BaseModel):
     timestamp: int
     duration: int
 
+
 class AudioItem(BaseModel):
-    tts_audio_name: str 
+    tts_audio_name: str
     tts_audio_directory: str
     file_getter: str
     pitch: int
@@ -36,10 +40,12 @@ class AudioItem(BaseModel):
     tts_rate: int
     pth_voice: str
 
+
 class SubtitleItem(BaseModel):
     subtitles_name: str
     file_getter: str
     subtitles_directory: str
+
 
 class BackgroundMusicItem(BaseModel):
     audio_name: str
@@ -47,8 +53,9 @@ class BackgroundMusicItem(BaseModel):
     start_time: int
     duration: int
 
+
 class VideoRequest(BaseModel):
-    tema: str 
+    tema: str
     usuario: str
     idioma: str
     personaje: str
@@ -64,12 +71,11 @@ class VideoRequest(BaseModel):
     gpt_model: str
 
 
-
 @create_video_router.post("/create-video", dependencies=[Depends(JWTBearer())])
 async def create_video(
     video: VideoRequest,
     token: dict = Depends(JWTBearer()),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     user_service = UserServicePostgres()
     user_roles_service = UserRolesServicePostgres()
@@ -83,8 +89,10 @@ async def create_video(
         user = await user_service.get_user_by_name(db, username)
         if not user:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
-        
-        current_user_role = await user_roles_service.get_role_from_user_uuid(db, user.id)
+
+        current_user_role = await user_roles_service.get_role_from_user_uuid(
+            db, user.id
+        )
 
         if current_user_role not in await roles_service.get_premium_roles(db):
             if not await user_service.can_make_post(db, sub):
@@ -101,24 +109,22 @@ async def create_video(
         "audio_item": [audio.model_dump() for audio in video.audio_item],
         "subtitle_item": [subtitle.model_dump() for subtitle in video.subtitle_item],
         "author": video.author,
-        "gameplay_name":video.gameplay_name,
-        "background_music":[music.model_dump() for music in video.background_music],
-        "images":[image.model_dump() for image in video.images],
-        "random_images":video.random_images,
-        "random_amount_images":video.random_amount_images,
-        "gpt_model": video.gpt_model
+        "gameplay_name": video.gameplay_name,
+        "background_music": [music.model_dump() for music in video.background_music],
+        "images": [image.model_dump() for image in video.images],
+        "random_images": video.random_images,
+        "random_amount_images": video.random_amount_images,
+        "gpt_model": video.gpt_model,
     }
 
     try:
         KafkaProducerSingleton.produce_message(
-            topic="temas",
-            key="temas_input_humano",
-            value=str(data)
+            topic="temas", key="temas_input_humano", value=str(data)
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error del servidor: {e}")
 
     return JSONResponse(
         content={"message": "Processing video creation request"},
-        status_code=status.HTTP_200_OK
+        status_code=status.HTTP_200_OK,
     )

@@ -1,12 +1,13 @@
-"""User Roles Service Interface
-"""
+"""User Roles Service Interface"""
+
 from abc import ABC
+
 
 class UserRolesService(ABC):
 
     def create_user_role(self):
         pass
-    
+
     def update_role(self):
         pass
 

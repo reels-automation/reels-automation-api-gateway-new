@@ -3,12 +3,13 @@ from models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+
 class UserServicePostgres(UserService):
 
     async def create_user(self, db: AsyncSession, username: str, email: str) -> User:
         new_user = User(name=username, email=email)
         db.add(new_user)
-        await db.flush()      # assign new_user.id
+        await db.flush()  # assign new_user.id
         await db.refresh(new_user)
         return new_user
 
@@ -17,7 +18,7 @@ class UserServicePostgres(UserService):
         stmt = select(User).filter_by(name=username)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
-    
+
     async def get_user_by_uuid(self, db: AsyncSession, uuid: str) -> User:
         stmt = select(User).filter_by(id=uuid)
         result = await db.execute(stmt)
@@ -27,7 +28,7 @@ class UserServicePostgres(UserService):
         stmt = select(User).filter_by(email=email)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
-    
+
     async def get_user_credits(self, db: AsyncSession, uuid: str) -> int:
         user = await self.get_user_by_uuid(db, uuid)
         return user.credits if user else 0
@@ -43,7 +44,7 @@ class UserServicePostgres(UserService):
             await db.flush()
             await db.refresh(user)
 
-    async def add_user_token(self, db: AsyncSession, uuid: str, amount_of_tokens:int):
+    async def add_user_token(self, db: AsyncSession, uuid: str, amount_of_tokens: int):
         user = await self.get_user_by_uuid(db, uuid)
         print("user: ✅,", user)
         print("before user.credits: ", user.credits)

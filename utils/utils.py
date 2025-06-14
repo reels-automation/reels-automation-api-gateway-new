@@ -1,7 +1,9 @@
-""" utils """
+"""utils"""
+
 from models.roles import Roles
 from database import get_db
 from sqlalchemy import select
+
 
 async def create_default_roles():
     # required_roles = ["Admin", "User"]

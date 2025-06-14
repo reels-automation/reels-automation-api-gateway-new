@@ -1,6 +1,7 @@
-"""RolesService Interface
-"""
+"""RolesService Interface"""
+
 from abc import ABC
+
 
 class RolesService(ABC):
 
@@ -15,7 +16,7 @@ class RolesService(ABC):
 
     def update_role(self, role_id: str, new_role_name: str):
         pass
-    
+
     def get_role(self, role_id: str):
         """_summary_
 

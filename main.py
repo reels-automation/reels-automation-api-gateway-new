@@ -2,6 +2,7 @@
 Main entry point for the FastAPI application.
 This file initializes the FastAPI app, sets up CORS middleware, and includes the routers for different blueprints.
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from blueprints.login.login import login_router
@@ -35,6 +36,8 @@ app.include_router(user_router)
 
 
 import os
+
+
 @app.on_event("startup")
 async def startup():
     if os.getenv("ENVIRONMENT") == "DEVELOPMENT":

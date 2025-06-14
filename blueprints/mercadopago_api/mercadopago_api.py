@@ -14,6 +14,7 @@ MERCADO_PAGO_ACCESS_TOKEN = os.getenv("MERCADO_PAGO_ACCESS_TOKEN")
 user_service = UserServicePostgres()
 mercadopago_router = APIRouter()
 
+
 @mercadopago_router.post("/mercadopago/webhook")
 async def mercadopago_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     try:
@@ -29,11 +30,13 @@ async def mercadopago_webhook(request: Request, db: AsyncSession = Depends(get_d
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"https://api.mercadopago.com/v1/payments/{payment_id}",
-            headers={"Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"}
+            headers={"Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"},
         )
 
     if response.status_code != 200:
-        return JSONResponse(status_code=500, content={"error": "No se pudo consultar el pago"})
+        return JSONResponse(
+            status_code=500, content={"error": "No se pudo consultar el pago"}
+        )
 
     payment_data = response.json()
 
@@ -43,7 +46,9 @@ async def mercadopago_webhook(request: Request, db: AsyncSession = Depends(get_d
         tokens = metadata.get("tokens", 0)
 
         if not user_id:
-            return JSONResponse(status_code=400, content={"error": "Falta user_id en metadata"})
+            return JSONResponse(
+                status_code=400, content={"error": "Falta user_id en metadata"}
+            )
 
         print(f"Acreditando tokens: {tokens} para usuario {user_id} ✅✅✅✅✅✅")
 
@@ -58,7 +63,6 @@ async def mercadopago_webhook(request: Request, db: AsyncSession = Depends(get_d
     return JSONResponse(status_code=200, content={"message": "Pago no aprobado"})
 
 
-
 # Modelo para recibir el user_id
 class PreferenceRequest(BaseModel):
     user_id: str
@@ -70,23 +74,14 @@ async def create_preference(data: PreferenceRequest):
     # Construimos la preferencia
     payload = {
         "items": [
-            {
-                "id": "message",
-                "unit_price": 500,
-                "quantity": 1,
-                "title": "1 Token"
-            }
+            {"id": "message", "unit_price": 500, "quantity": 1, "title": "1 Token"}
         ],
-        "metadata": {
-            "user_id": data.user_id,
-            "tokens": 1
-        },
+        "metadata": {"user_id": data.user_id, "tokens": 1},
         "back_urls": {
-        "success": "https://aprendiendoconpersonajes.duckdns.org/",
-        "pending": "https://aprendiendoconpersonajes.duckdns.org/",
-        "failure": "https://aprendiendoconpersonajes.duckdns.org/"
-    },
-
+            "success": "https://aprendiendoconpersonajes.duckdns.org/",
+            "pending": "https://aprendiendoconpersonajes.duckdns.org/",
+            "failure": "https://aprendiendoconpersonajes.duckdns.org/",
+        },
     }
 
     async with httpx.AsyncClient() as client:
@@ -94,13 +89,15 @@ async def create_preference(data: PreferenceRequest):
             "https://api.mercadopago.com/checkout/preferences",
             headers={
                 "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            json=payload
+            json=payload,
         )
 
     if response.status_code != 201:
-        return JSONResponse(status_code=500, content={"error": "Error creando preferencia"})
+        return JSONResponse(
+            status_code=500, content={"error": "Error creando preferencia"}
+        )
 
     preference = response.json()
     return {"init_point": preference["init_point"]}

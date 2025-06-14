@@ -1,15 +1,31 @@
-name: Deploy
-
-on:
-  push:
-
+name: Python application test with Github Actions
+on: [push]
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        make install
+    - name: Lint with pylint
+      run: |
+        make lint
+    - name: Test with pytest
+      run: |
+        make test
+    - name: Format code
+      run: |
+        make format
+    - name: Build Container
+      run: |
+        make build
+    - name: Run Container
+      run: |
+        make run    
 
-      - name: Say hello
-        run: echo "Hello World"
+    
