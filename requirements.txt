@@ -14,3 +14,5 @@ motor
 minio
 pylint
 autopep8
+black
+ruff
