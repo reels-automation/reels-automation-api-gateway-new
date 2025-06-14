@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 
 from utils.jwt_utils import decode_jwt
 

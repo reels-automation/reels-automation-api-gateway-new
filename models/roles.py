@@ -2,7 +2,6 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Text, ForeignKey
 from database import Base
-from sqlalchemy.orm import relationship
 
 
 class Roles(Base):

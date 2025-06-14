@@ -1,7 +1,4 @@
-from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi import status
+from fastapi import APIRouter
 
 home_router = APIRouter()
 

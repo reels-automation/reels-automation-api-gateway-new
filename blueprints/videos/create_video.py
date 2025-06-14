@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-from datetime import datetime
 
 from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres

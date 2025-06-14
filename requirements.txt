@@ -12,3 +12,5 @@ werkzeug
 asyncpg
 motor
 minio
+pylint
+autopep8

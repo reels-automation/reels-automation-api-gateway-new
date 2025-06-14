@@ -14,6 +14,12 @@ install:
 format:
 	black .
 
+ruff:
+	ruff check . --fix
+
+lint: 
+	pylint auth blueprints kafka models services utils
+
 python-run:
 	sed -i '/^ENVIRONMENT/d' .env
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env

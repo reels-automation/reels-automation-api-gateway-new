@@ -9,8 +9,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from database_mongo import get_db
 from minio_client import get_minio_client
 from minio import Minio
-from services.user_service.user_service_postgres import UserServicePostgres
-from services.password_service.password_service_postgres import PasswordServicePostgres
 
 mongo_router = APIRouter()
 
@@ -211,5 +209,5 @@ async def get_video(
         )
         return {"url": url}
 
-    except Exception as ex:
+    except Exception:
         print("Error al buscar video en minio. Video no encontrado")

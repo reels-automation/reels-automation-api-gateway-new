@@ -1,16 +1,10 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta
 from pydantic import BaseModel
 
 from database import get_db
 from services.user_service.user_service_postgres import UserServicePostgres
-from services.password_service.password_service_postgres import PasswordServicePostgres
-from services.user_roles_service.user_roles_service_postgres import (
-    UserRolesServicePostgres,
-)
-from services.roles_service.roles_service_postgres import RolesServicePostgres
 
 user_router = APIRouter()
 
