@@ -1,12 +1,9 @@
 create-env:
-	@if [ ! -d ".env" ]; then \
-		echo "Creating Python virtual environment in .env using virtualenv..."; \
-		virtualenv env; \
-	else \
-		echo "Virtual environment already exists."; \
-	fi
+	@echo "Creating Python virtual environment in ./env using python3 -m venv..."
+	@python3 -m venv env
 
 install:
+	@echo "Installing Python dependencies..."
 	@. env/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements.txt
