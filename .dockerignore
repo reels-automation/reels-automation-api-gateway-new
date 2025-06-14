@@ -1,0 +1,19 @@
+# Prevent secrets from being added to the image
+.env
+.env.*
+
+# Bytecode, logs, system files
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Git and editor files
+.git
+.gitignore
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
