@@ -1,12 +1,15 @@
-on:push
-name:deploy
+name: deploy
+
+on:
+    push:
+
 jobs:
     deploy:
         name: test push
         runs-on: ubuntu-latest
         steps:
-            -uses: actions/checkout@master
-            -name: build and push to docker
+            - uses: actions/checkout@master
+            - name: build and push to docker
             uses: docker/build-push-action@v1
             with:
                 username: ${{ secrets.DOCKER_USERNAME }}
