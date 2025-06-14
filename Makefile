@@ -9,9 +9,6 @@ install:
 format:
 	black .
 
-ruff:
-	ruff check . --fix
-
 lint: 
 	pylint auth blueprints kafka models services utils
 

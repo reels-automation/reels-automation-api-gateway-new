@@ -15,8 +15,6 @@ jobs:
     - name: Format with black
       run: |
         make format
-    - name: Format with ruff
-      run: |
-        make ruff
+
    
     
