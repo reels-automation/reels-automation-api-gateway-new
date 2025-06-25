@@ -1,18 +1,44 @@
 # Reels Automation Api Gateway
 
-## Insalación
+## Entorno de desarrollo local 
 
-Iniciar un virtual environment con:
+### Clonar el repositorio 
+```bash
+git@github.com:reels-automation/reels-automation-api-gateway-new.git
+```
 
+### Iniciar un virtual environment
+```bash
 virtualenv env
+```
 
-Ejecutar make install para instalar los modulos de requirements.txt
+### Instalar las dependencias
 
-## Ejecución
+```bash
+make install
+```
+### Configurar variables de entorno
+```bash
+cp .env.template .env
 
-Ejecutar make python-run
+DATABASE_URL # Url a una base de datos SQL
+MONGO_URL    # Url a una base de datos mongo
+KAFKA_URL    # Url al broker de kafka
+MINIO_URL    # Url del contenedor minio donde se obtienen los videos
+MINIO_ACCESS_KEY #Clave de acceso para acceder al contendor de minio
+MINIO_SECRET_KEY #Clave secreta para acceder al contenedor de minio
+JWT_KEY      # La clave JWT para encriptar los tokens
+MERCADO_PAGO_ACCESS_TOKEN #Token de acceso de mercado pago para recibir pagos
+```
 
-## Docker
+### Ejecutar
+```bash
+bash -c 'source env/bin/activate && fastapi dev main.py --port 7080' #Reemplazar por cualquier puerto
+```
+
+## Entorno de desarrollo de producción
+
+### Docker
 ```yaml
 networks:
   default:
@@ -39,3 +65,8 @@ services:
       - "7080:7080"
 ```
 Importante: Configurar las variables de entorno apropiadas en un .env
+
+### Kuberentes
+
+## Como contribuir
+
