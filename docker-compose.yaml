@@ -1,0 +1,33 @@
+services:
+  api_gateway:
+    build: .
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ENVIRONMENT: ${ENVIRONMENT}
+      JWT_KEY: ${JWT_KEY}
+      MINIO_URL: ${MINIO_URL}
+      MONGO_URL: ${MONGO_URL}
+      KAFKA_URL: ${KAFKA_URL}
+      MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    container_name: api_gateway
+    restart: unless-stopped
+    user: $UID:$GID
+    ports:
+      - "7080:7080"
+    networks:
+      - local-kafka
+      - api-gateway
+      - mongo-network
+      - minio-network
+
+networks:
+  local-kafka:
+    external: true
+  api-gateway:
+    external: true
+  minio-network:
+    external: true
+  mongo-network:
+    external: true

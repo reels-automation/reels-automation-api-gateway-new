@@ -1,6 +1,7 @@
 # Prevent secrets from being added to the image
 .env
 .env.*
+docker-compose.yaml
 
 # Bytecode, logs, system files
 __pycache__/
