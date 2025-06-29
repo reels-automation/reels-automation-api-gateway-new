@@ -1,13 +1,15 @@
 # Reels Automation Api Gateway
 
-## Entorno de desarrollo local 
+## Entorno de desarrollo local
 
-### Clonar el repositorio 
+### Clonar el repositorio
+
 ```bash
 git@github.com:reels-automation/reels-automation-api-gateway-new.git
 ```
 
 ### Iniciar un virtual environment
+
 ```bash
 virtualenv env
 ```
@@ -17,7 +19,9 @@ virtualenv env
 ```bash
 make install
 ```
+
 ### Configurar variables de entorno
+
 ```bash
 cp .env.template .env
 
@@ -32,6 +36,7 @@ MERCADO_PAGO_ACCESS_TOKEN #Token de acceso de mercado pago para recibir pagos
 ```
 
 ### Ejecutar
+
 ```bash
 bash -c 'source env/bin/activate && fastapi dev main.py --port 7080' #Reemplazar por cualquier puerto
 ```
@@ -39,6 +44,7 @@ bash -c 'source env/bin/activate && fastapi dev main.py --port 7080' #Reemplazar
 ## Entorno de desarrollo de producción
 
 ### Docker
+
 ```yaml
 networks:
   default:
@@ -64,6 +70,7 @@ services:
     ports:
       - "7080:7080"
 ```
+
 Importante: Configurar las variables de entorno apropiadas en un .env
 
 ### Kuberentes
