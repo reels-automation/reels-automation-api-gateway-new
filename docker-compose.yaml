@@ -1,5 +1,5 @@
 services:
-  api_gateway:
+  api_gateway-dev:
     build: .
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -11,7 +11,7 @@ services:
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    container_name: api_gateway
+    container_name: api_gateway-dev
     restart: unless-stopped
     user: $UID:$GID
     ports:

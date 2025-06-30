@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from database_mongo import get_db
-from minio_client import get_minio_client
+from minio_client import get_minio_client_to_sign_signatures
 from minio import Minio
 
 mongo_router = APIRouter()
@@ -149,6 +149,7 @@ async def get_videos_url(user_id: UserId, db: AsyncIOMotorDatabase = Depends(get
 
 @mongo_router.post("/add-video")
 async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    
     print("🔹 Recibida solicitud para /add-video")
     print("📦 Payload recibido:")
     print(video.model_dump())
@@ -201,11 +202,11 @@ async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_
 @mongo_router.post("/get-video")
 async def get_video(
     video_name: MinioRequest,  # it must includ the name with the extension (example.mp4)
-    minio_client: Minio = Depends(get_minio_client),
+    minio_client: Minio = Depends(get_minio_client_to_sign_signatures),
 ):
     try:
         url = minio_client.presigned_get_object(
-            "videos-homero", video_name.video_name, expires=timedelta(days=7)
+            "videos-homero", video_name.video_name, expires=timedelta(days=7) #Hardcoded!
         )
         return {"url": url}
 
