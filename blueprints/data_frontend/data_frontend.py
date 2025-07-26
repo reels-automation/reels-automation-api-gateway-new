@@ -1,6 +1,9 @@
 import os
 import logging
 import requests
+from datetime import timedelta
+from minio_client import get_minio_client_to_sign_signatures
+from minio import Minio
 from fastapi import APIRouter, HTTPException, status, Depends
 from dotenv import load_dotenv
 
@@ -27,3 +30,19 @@ async def get_ollama_models():
         logger.log(logging.ERROR, error)
         return {"models": [], "error": error}
 
+@data_router.get("/gameplays")
+async def get_gameplays(
+    minio_client: Minio = Depends(get_minio_client_to_sign_signatures)
+):
+    bucket_name = "gameplays"
+    objects = minio_client.list_objects(bucket_name, recursive=False)
+    object_names = [obj.object_name for obj in objects]
+    data = []
+    for object in object_names:
+        url = minio_client.presigned_get_object(
+                bucket_name, object, expires=timedelta(days=7))
+        
+        info = {"name":object, "url": url}
+        data.append(info)
+
+    return data
