@@ -13,6 +13,7 @@ from blueprints.videos.create_video import create_video_router
 from blueprints.mongo.mongo import mongo_router
 from blueprints.mercadopago_api.mercadopago_api import mercadopago_router
 from blueprints.user.user import user_router
+from blueprints.data_frontend.data_frontend import data_router
 
 from database import Base, engine
 from utils.utils import create_default_roles
@@ -34,6 +35,7 @@ app.include_router(create_video_router)
 app.include_router(mongo_router)
 app.include_router(mercadopago_router)
 app.include_router(user_router)
+app.include_router(data_router)
 
 
 
