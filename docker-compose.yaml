@@ -11,6 +11,7 @@ services:
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      OLLAMA_IP: ${OLLAMA_IP}
     container_name: api_gateway-dev
     restart: unless-stopped
     user: $UID:$GID
