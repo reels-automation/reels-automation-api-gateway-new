@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 ollama_ip = os.getenv("OLLAMA_IP")
+admin_api_url = os.getenv("ADMIN_API")
 data_router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -46,3 +47,20 @@ async def get_gameplays(
         data.append(info)
 
     return data
+
+@data_router.get("/voice-models")
+async def get_voice_models(
+
+):
+    try:
+        url = f"{admin_api_url}/"
+        print("wasa: ", url)
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        parsed_response = response.json()
+
+        return parsed_response
+    except Exception as e:
+        error = f"Error al hacer fetch al endpoint admin api"
+        logger.log(logging.ERROR, error, f"\nException: {e}")
+        return []
