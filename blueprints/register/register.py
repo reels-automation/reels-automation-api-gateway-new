@@ -67,3 +67,10 @@ async def register(
         content={"access_token": access_token, "token_type": "bearer"},
         status_code=status.HTTP_201_CREATED,
     )
+
+@register_router.post("/google/register")
+async def register(
+    data: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    print("registro")

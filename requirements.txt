@@ -15,3 +15,5 @@ minio
 pylint
 autopep8
 black
+starlette
+OAuth

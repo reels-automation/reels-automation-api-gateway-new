@@ -13,7 +13,6 @@ from utils.jwt_utils import create_access_token
 login_router = APIRouter()
 logger = logging.getLogger(__name__)
 
-
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -56,3 +55,7 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@login_router.post("/google/login")
+async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
+    print("porky")

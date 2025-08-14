@@ -14,6 +14,7 @@ from blueprints.mongo.mongo import mongo_router
 from blueprints.mercadopago_api.mercadopago_api import mercadopago_router
 from blueprints.user.user import user_router
 from blueprints.data_frontend.data_frontend import data_router
+from auth.google_oauth import google_endpoints
 
 from database import Base, engine
 from utils.utils import create_default_roles
@@ -36,9 +37,7 @@ app.include_router(mongo_router)
 app.include_router(mercadopago_router)
 app.include_router(user_router)
 app.include_router(data_router)
-
-
-
+app.include_router(google_endpoints)
 
 @app.on_event("startup")
 async def startup():

@@ -7,7 +7,7 @@ import os
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI
 
-router = APIRouter()
+google_endpoints = APIRouter()
 
 # OAuth config
 config_data = {
@@ -27,18 +27,18 @@ oauth.register(
     }
 )
 
-@router.get("/auth/google/login")
+@google_endpoints.get("/auth/google/login")
 async def login_via_google(request: Request):
     redirect_uri = request.url_for('google_auth_callback')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@router.get("/auth/google/callback")
+@google_endpoints.get("/auth/google/callback")
 async def google_auth_callback(request: Request):
     token = await oauth.google.authorize_access_token(request)
     user = await oauth.google.parse_id_token(request, token)
     return {"user": user}
 
-@router.get("/auth/google/logout")
+@google_endpoints.get("/auth/google/logout")
 async def google_logout(request: Request):
     request.session.pop('user', None)
     return {"message": "Logged out"}
