@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, status, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from database import get_db
@@ -15,6 +15,7 @@ google_endpoints = APIRouter()
 oauth = OAuth()
 oauth.register(
     name='google',
+    authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
@@ -50,9 +51,12 @@ async def google_auth_callback(request: Request, db: AsyncSession = Depends(get_
             "username": user.name
         })
 
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        redirect_url = f"{frontend_url}/oauth-callback?token={access_token}"
+        return RedirectResponse(url=redirect_url)
+    except Exception as e:
+        print("Google OAuth callback error:", e)
         return JSONResponse(
-            content={"access_token": access_token, "token_type": "bearer"},
-            status_code=status.HTTP_200_OK,
+            content={"detail": "Google OAuth failed", "error": str(e)},
+            status_code=status.HTTP_400_BAD_REQUEST,
         )
-    except:
-        pass

@@ -24,10 +24,8 @@ app = FastAPI()
 
 app.add_middleware(
     SessionMiddleware, 
-    secret_key=os.getenv("SESSION_SECRET_KEY", "dev-secret"),
-    same_site="lax",
-    https_only=False
-    )
+    secret_key=os.getenv("SESSION_SECRET_KEY", "dev-secret")
+)
 
 app.add_middleware(
     CORSMiddleware,
