@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Depends
 from fastapi.responses import JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
+from database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 import os
+from services.user_service.user_service_postgres import UserServicePostgres
 
 from .auth_bearer import JWTBearer
 from utils.jwt_utils import create_access_token
@@ -28,18 +31,28 @@ async def login_via_google(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @google_endpoints.get("/auth/google/callback")
-async def google_auth_callback(request: Request):
-    print("Callback cookies:", request.cookies)
-    print("Session at callback:", request.session)
-    token = await oauth.google.authorize_access_token(request)
-    user = await oauth.google.parse_id_token(request, token)
+async def google_auth_callback(request: Request, db: AsyncSession = Depends(get_db)):
+    try:
+        user_service = UserServicePostgres()
 
-    access_token = create_access_token({
-        "sub": user.get("sub"),
-        "username": user.get("name")
-    })
+        print("Callback cookies:", request.cookies)
+        print("Session at callback:", request.session)
+        token = await oauth.google.authorize_access_token(request)
+        user_google = await oauth.google.parse_id_token(request, token)
 
-    return JSONResponse(
-        content={"access_token": access_token, "token_type": "bearer"},
-        status_code=status.HTTP_200_OK,
-    )
+        if not await user_service.user_exists(db, user_google.get("name"), user_google.get("email")):
+            user = await user_service.create_user(db, user_google.get("name"), user_google.get("email"))
+        else:
+            user = await user_service.get_user_by_email(db, user_google.get("email"))
+
+        access_token = create_access_token({
+            "sub": str(user.id),
+            "username": user.name
+        })
+
+        return JSONResponse(
+            content={"access_token": access_token, "token_type": "bearer"},
+            status_code=status.HTTP_200_OK,
+        )
+    except:
+        pass

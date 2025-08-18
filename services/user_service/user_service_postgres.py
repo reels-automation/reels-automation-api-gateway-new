@@ -13,6 +13,15 @@ class UserServicePostgres(UserService):
         await db.refresh(new_user)
         return new_user
 
+    async def user_exists(self, db: AsyncSession, username: str, email: str) -> bool:
+        user = await self.__get_user_by_name_and_email(db, username, email)
+        return user is not None
+
+    async def __get_user_by_name_and_email(self, db: AsyncSession, username: str, email: str) -> User:
+        stmt = select(User).filter_by(name=username, email=email)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_user_by_name(self, db: AsyncSession, username: str) -> User:
         print("El username aca es... ", username)
         stmt = select(User).filter_by(name=username)
