@@ -1,26 +1,19 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Request, status
+from fastapi.responses import JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 import os
 
-from starlette.middleware.sessions import SessionMiddleware
-from fastapi import FastAPI
+from .auth_bearer import JWTBearer
+from utils.jwt_utils import create_access_token
 
 google_endpoints = APIRouter()
 
-# OAuth config
-config_data = {
-    'GOOGLE_CLIENT_ID': os.getenv("GOOGLE_CLIENT_ID"),
-    'GOOGLE_CLIENT_SECRET': os.getenv("GOOGLE_CLIENT_SECRET"),
-}
-config = Config(environ=config_data)
-
-oauth = OAuth(config)
+oauth = OAuth()
 oauth.register(
     name='google',
-    client_id=config_data['GOOGLE_CLIENT_ID'],
-    client_secret=config_data['GOOGLE_CLIENT_SECRET'],
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile'
@@ -29,16 +22,24 @@ oauth.register(
 
 @google_endpoints.get("/auth/google/login")
 async def login_via_google(request: Request):
-    redirect_uri = request.url_for('google_auth_callback')
+    print("Login cookies:", request.cookies)
+    print("Session at login:", request.session)
+    redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @google_endpoints.get("/auth/google/callback")
 async def google_auth_callback(request: Request):
+    print("Callback cookies:", request.cookies)
+    print("Session at callback:", request.session)
     token = await oauth.google.authorize_access_token(request)
     user = await oauth.google.parse_id_token(request, token)
-    return {"user": user}
 
-@google_endpoints.get("/auth/google/logout")
-async def google_logout(request: Request):
-    request.session.pop('user', None)
-    return {"message": "Logged out"}
+    access_token = create_access_token({
+        "sub": user.get("sub"),
+        "username": user.get("name")
+    })
+
+    return JSONResponse(
+        content={"access_token": access_token, "token_type": "bearer"},
+        status_code=status.HTTP_200_OK,
+    )

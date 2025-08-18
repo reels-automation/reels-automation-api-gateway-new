@@ -15,11 +15,19 @@ from blueprints.mercadopago_api.mercadopago_api import mercadopago_router
 from blueprints.user.user import user_router
 from blueprints.data_frontend.data_frontend import data_router
 from auth.google_oauth import google_endpoints
+from starlette.middleware.sessions import SessionMiddleware
 
 from database import Base, engine
 from utils.utils import create_default_roles
 
 app = FastAPI()
+
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=os.getenv("SESSION_SECRET_KEY", "dev-secret"),
+    same_site="lax",
+    https_only=False
+    )
 
 app.add_middleware(
     CORSMiddleware,
