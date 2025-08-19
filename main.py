@@ -45,9 +45,11 @@ app.include_router(user_router)
 app.include_router(data_router)
 app.include_router(google_endpoints)
 
+"""
 @app.on_event("startup")
 async def startup():
     if os.getenv("ENVIRONMENT") == "DEVELOPMENT":
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
     await create_default_roles()
+"""
