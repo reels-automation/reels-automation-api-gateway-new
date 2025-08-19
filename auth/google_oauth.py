@@ -1,29 +1,14 @@
 from fastapi import APIRouter, Request, status, Depends
 from fastapi.responses import JSONResponse, RedirectResponse
-from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
 from database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from services.user_service.user_service_postgres import UserServicePostgres
 
-from .auth_bearer import JWTBearer
+from .oauth2_utils import oauth
 from utils.jwt_utils import create_access_token
 
 google_endpoints = APIRouter()
-
-# Setup OAuth configuration
-oauth = OAuth()
-oauth.register(
-    name='google',
-    authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
-    client_id=os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
 
 # Route to initiate login with Google
 @google_endpoints.get("/auth/google/login")

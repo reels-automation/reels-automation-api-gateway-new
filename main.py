@@ -17,14 +17,18 @@ from blueprints.data_frontend.data_frontend import data_router
 from auth.google_oauth import google_endpoints
 from starlette.middleware.sessions import SessionMiddleware
 
+"""
 from database import Base, engine
 from utils.utils import create_default_roles
+"""
 
 app = FastAPI()
 
 app.add_middleware(
     SessionMiddleware, 
-    secret_key=os.getenv("SESSION_SECRET_KEY", "dev-secret")
+    secret_key=os.getenv("SESSION_SECRET_KEY")
+    # same_site="lax",  # prueba primero con lax
+    # https_only=False  # en local no usas HTTPS
 )
 
 app.add_middleware(
