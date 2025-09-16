@@ -12,6 +12,7 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       OLLAMA_IP: ${OLLAMA_IP}
+      SECURE: ${SECURE}
     container_name: api_gateway-dev
     restart: unless-stopped
     user: $UID:$GID
