@@ -114,7 +114,10 @@ async def create_video(
         "random_images": video.random_images,
         "random_amount_images": video.random_amount_images,
         "gpt_model": video.gpt_model,
+        "status": "IN QUEUE",
     }
+
+    # TODO: acá habría que hacer lo de request
 
     try:
         KafkaProducerSingleton.produce_message(
