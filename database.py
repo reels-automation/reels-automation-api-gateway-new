@@ -7,15 +7,14 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Configuración básica pero más robusta del engine
 engine = create_async_engine(
     DATABASE_URL,
-    pool_pre_ping=True,  # Esto verifica que la conexión esté activa antes de usarla
-    pool_recycle=300,  # Recicla conexiones después de 5 minutos (300 segundos)
+    pool_pre_ping=True, 
+    pool_recycle=300,
     connect_args={
         "ssl": True,
         "server_settings": {
-            "idle_in_transaction_session_timeout": "30000"  # 30 segundos
+            "idle_in_transaction_session_timeout": "30000"
         },
     },
 )
@@ -35,4 +34,4 @@ async def get_db():
         await db.rollback()
         raise
     finally:
-        await db.close()  # Asegura que la sesión siempre se cierre
+        await db.close()

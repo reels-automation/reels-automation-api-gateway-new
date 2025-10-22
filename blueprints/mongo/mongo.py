@@ -12,7 +12,6 @@ from minio import Minio
 
 mongo_router = APIRouter()
 
-
 class ImageItem(BaseModel):
     image_name: str
     image_modifier: str
@@ -20,7 +19,6 @@ class ImageItem(BaseModel):
     image_directory: str
     timestamp: int
     duration: int
-
 
 class AudioItem(BaseModel):
     tts_audio_name: str
@@ -31,20 +29,16 @@ class AudioItem(BaseModel):
     tts_rate: int
     pth_voice: str
 
-
 class SubtitleItem(BaseModel):
     subtitles_name: str
     file_getter: str
     subtitles_directory: str
-
 
 class BackgroundMusicItem(BaseModel):
     audio_name: str
     file_getter: str
     start_time: int
     duration: int
-
-
 class VideoRequest(BaseModel):
     tema: str
     usuario: str
@@ -61,15 +55,13 @@ class VideoRequest(BaseModel):
     random_amount_images: int
     gpt_model: str
     url: str
-
+    status: str
 
 class MinioRequest(BaseModel):
     video_name: str
 
-
 class UserId(BaseModel):
     user_id: str
-
 
 @mongo_router.post("/get-videos-user")
 async def get_videos_from_user(
@@ -77,6 +69,8 @@ async def get_videos_from_user(
 ):
     try:
         filter = {"usuario": user_id.user_id}
+
+        # TODO: acá habría que hacer lo de request
         collection_videos = db.videos
         cursor = collection_videos.find(filter, {"_id": False})
         data = await cursor.to_list(length=None)
@@ -99,36 +93,33 @@ async def get_videos_from_user(
 @mongo_router.post("/get-videos-url")
 async def get_videos_url(user_id: UserId, db: AsyncIOMotorDatabase = Depends(get_db)):
     try:
+        # TODO: acá habría que hacer lo de request
         collection_videos = db.videos
 
-        # Filtrar videos del usuario que NO están descargados todavía
         filter = {
             "usuario": user_id.user_id,
             "$or": [{"DOWNLOADED": {"$exists": False}}, {"DOWNLOADED": False}],
         }
 
-        # Buscar esos videos (solo url y DOWNLOADED)
+
+        # TODO: acá habría que hacer lo de request
         projection = {"_id": False, "url": True, "DOWNLOADED": True}
         cursor = collection_videos.find(filter, projection)
         videos_to_download = await cursor.to_list(length=None)
 
         if not videos_to_download:
-            # Si no hay videos nuevos para descargar
             return JSONResponse(
                 content={"urls": [], "message": "No hay videos nuevos para descargar."},
                 status_code=status.HTTP_200_OK,
             )
-
-        # Obtener todos los URLs para filtrar de nuevo en update_many
+        
         urls = [video["url"] for video in videos_to_download]
 
-        # Actualizar los videos que vamos a devolver para marcar DOWNLOADED: True
         await collection_videos.update_many(
             {"usuario": user_id.user_id, "url": {"$in": urls}},
             {"$set": {"DOWNLOADED": True}},
         )
 
-        # Devolver solo los videos que no estaban descargados antes (ahora ya marcados)
         return JSONResponse(
             content={
                 "urls": videos_to_download,
@@ -150,8 +141,8 @@ async def get_videos_url(user_id: UserId, db: AsyncIOMotorDatabase = Depends(get
 @mongo_router.post("/add-video")
 async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     
-    print("🔹 Recibida solicitud para /add-video")
-    print("📦 Payload recibido:")
+    print("Recibida solicitud para /add-video")
+    print("Payload recibido:")
     print(video.model_dump())
 
     try:
@@ -175,11 +166,13 @@ async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_
             "random_amount_images": video.random_amount_images,
             "gpt_model": video.gpt_model,
             "url": video.url,
+            "status": video.status,
         }
 
         print("🛠 Datos procesados para insertar en MongoDB:")
         print(data)
 
+        # TODO: acá habría que hacer lo de request
         collection_videos = db.videos
         result = await collection_videos.insert_one(data)
 
@@ -187,7 +180,7 @@ async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_
 
         return JSONResponse(
             content={
-                "inserted_id": str(result.inserted_id),  # <- esto lo hace serializable
+                "inserted_id": str(result.inserted_id),
                 "message": "Video insertado correctamente",
             },
             status_code=status.HTTP_200_OK,
@@ -201,7 +194,7 @@ async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_
 
 @mongo_router.post("/get-video")
 async def get_video(
-    video_name: MinioRequest,  # it must includ the name with the extension (example.mp4)
+    video_name: MinioRequest,
     minio_client: Minio = Depends(get_minio_client_to_sign_signatures),
 ):
     try:

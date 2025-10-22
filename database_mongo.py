@@ -6,7 +6,8 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client["reels_automation"]
 collection_temas = db.temas
 collection_videos = db.videos
-
+# TODO: acá habría que hacer lo de request
+# collection_requests = db.requests
 
 async def get_db():
     yield db
