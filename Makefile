@@ -13,7 +13,6 @@ lint:
 	pylint auth blueprints kafka models services utils
 
 python-run:
-	sed -i '/^ENVIRONMENT/d' .env
 	echo 'ENVIRONMENT=DEVELOPMENT' >> .env
 	bash -c 'source env/bin/activate && fastapi dev main.py --port 7080'
 
