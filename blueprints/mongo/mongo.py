@@ -214,3 +214,59 @@ async def get_video(
         print("Error al buscar video en minio. Video no encontrado")
         print("Exception: ")
         print(Ex)
+
+@mongo_router.get("/videos-por-personaje")
+async def get_videos_por_personaje(db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        pipeline = [
+            {"$group": {"_id": "$personaje", "cantidad": {"$sum": 1}}},
+            {"$sort": {"cantidad": -1}},
+        ]
+        data = await db.videos.aggregate(pipeline).to_list(length=None)
+        return JSONResponse(content={"data": data}, status_code=200)
+    except Exception as e:
+        print("❌ Error en /videos-por-personaje:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas")
+
+
+@mongo_router.get("/videos-por-idioma")
+async def get_videos_por_idioma(db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        pipeline = [
+            {"$group": {"_id": "$idioma", "cantidad": {"$sum": 1}}},
+            {"$sort": {"cantidad": -1}},
+        ]
+        data = await db.videos.aggregate(pipeline).to_list(length=None)
+        return JSONResponse(content={"data": data}, status_code=200)
+    except Exception as e:
+        print("❌ Error en /videos-por-idioma:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas")
+
+
+@mongo_router.get("/videos-por-gameplay")
+async def get_videos_por_gameplay(db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        pipeline = [
+            {"$group": {"_id": "$gameplay_name", "cantidad": {"$sum": 1}}},
+            {"$sort": {"cantidad": -1}},
+        ]
+        data = await db.videos.aggregate(pipeline).to_list(length=None)
+        return JSONResponse(content={"data": data}, status_code=200)
+    except Exception as e:
+        print("❌ Error en /videos-por-gameplay:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas")
+
+
+@mongo_router.get("/promedio-videos-por-usuario")
+async def get_promedio_videos_por_usuario(db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        pipeline = [
+            {"$group": {"_id": "$usuario", "cantidad": {"$sum": 1}}},
+            {"$group": {"_id": None, "promedio": {"$avg": "$cantidad"}}},
+        ]
+        result = await db.videos.aggregate(pipeline).to_list(length=None)
+        promedio = result[0]["promedio"] if result else 0
+        return JSONResponse(content={"promedio_videos_por_usuario": promedio}, status_code=200)
+    except Exception as e:
+        print("❌ Error en /promedio-videos-por-usuario:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas")
