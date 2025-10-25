@@ -61,6 +61,7 @@ class VideoRequest(BaseModel):
     random_amount_images: int
     gpt_model: str
     url: str
+    date: str
 
 
 class MinioRequest(BaseModel):
@@ -175,6 +176,7 @@ async def add_video(video: VideoRequest, db: AsyncIOMotorDatabase = Depends(get_
             "random_amount_images": video.random_amount_images,
             "gpt_model": video.gpt_model,
             "url": video.url,
+            "date": video.date
         }
 
         print("🛠 Datos procesados para insertar en MongoDB:")
