@@ -272,3 +272,20 @@ async def get_promedio_videos_por_usuario(db: AsyncIOMotorDatabase = Depends(get
     except Exception as e:
         print("❌ Error en /promedio-videos-por-usuario:", e)
         raise HTTPException(status_code=500, detail="Error al obtener estadísticas")
+
+@mongo_router.get("/videos-por-fecha")
+async def get_videos_por_fecha(db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        pipeline = [
+            # Filtrar solo documentos que tienen campo "date"
+            {"$match": {"date": {"$exists": True}}},
+            # Agrupar por "date" y contar cantidad de videos por cada fecha
+            {"$group": {"_id": "$date", "cantidad": {"$sum": 1}}},
+            # Ordenar por fecha descendente (opcional)
+            {"$sort": {"_id": -1}},
+        ]
+        data = await db.videos.aggregate(pipeline).to_list(length=None)
+        return JSONResponse(content={"data": data}, status_code=200)
+    except Exception as e:
+        print("❌ Error en /videos-por-fecha:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas por fecha")
