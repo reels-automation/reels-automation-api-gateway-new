@@ -277,15 +277,21 @@ async def get_promedio_videos_por_usuario(db: AsyncIOMotorDatabase = Depends(get
 async def get_videos_por_fecha(db: AsyncIOMotorDatabase = Depends(get_db)):
     try:
         pipeline = [
-            # Filtrar solo documentos que tienen campo "date"
+            # Solo consideramos documentos que tienen campo "date"
             {"$match": {"date": {"$exists": True}}},
-            # Agrupar por "date" y contar cantidad de videos por cada fecha
-            {"$group": {"_id": "$date", "cantidad": {"$sum": 1}}},
-            # Ordenar por fecha descendente (opcional)
-            {"$sort": {"_id": -1}},
+            
+            # Convertimos la fecha a string YYYY-MM-DD
+            {
+                "$group": {
+                    "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": {"$toDate": "$date"}}},
+                    "cantidad": {"$sum": 1}
+                }
+            },
+            {"$sort": {"_id": 1}},  # Orden ascendente por fecha
         ]
         data = await db.videos.aggregate(pipeline).to_list(length=None)
         return JSONResponse(content={"data": data}, status_code=200)
     except Exception as e:
-        print("❌ Error en /videos-por-fecha:", e)
-        raise HTTPException(status_code=500, detail="Error al obtener estadísticas por fecha")
+        print("❌ Error en /videos-por-dia:", e)
+        raise HTTPException(status_code=500, detail="Error al obtener estadísticas por día")
+
