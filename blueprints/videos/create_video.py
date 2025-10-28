@@ -135,7 +135,7 @@ async def create_video(
     )
 
 
-@create_video.get("/get-videos-status")
+@create_video_router.get("/get-videos-status")
 async def get_video_status():
     try: 
         valkey_client = ValkeyClient(VALKEY_URL)
