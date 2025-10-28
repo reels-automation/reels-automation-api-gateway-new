@@ -11,12 +11,12 @@ from services.roles_service.roles_service_postgres import RolesServicePostgres
 from services.user_roles_service.user_roles_service_postgres import (
     UserRolesServicePostgres,
 )
-
+from services.valkey_service.valkey_service import ValkeyClient
 from auth.auth_bearer import JWTBearer
 from kafka.kafka_producer import KafkaProducerSingleton
 from utils.jwt_utils import decode_jwt
-
 from pydantic import BaseModel
+from settings import VALKEY_URL
 
 create_video_router = APIRouter()
 
@@ -76,6 +76,7 @@ async def create_video(
     token: dict = Depends(JWTBearer()),
     db: AsyncSession = Depends(get_db),
 ):
+    print("Evidi well")
     user_service = UserServicePostgres()
     user_roles_service = UserRolesServicePostgres()
     roles_service = RolesServicePostgres()
@@ -120,6 +121,10 @@ async def create_video(
         KafkaProducerSingleton.produce_message(
             topic="temas", key="temas_input_humano", value=str(data)
         )
+        
+        valkey_client = ValkeyClient(VALKEY_URL)
+        valkey_client.insert_video()
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error del servidor: {e}")
 
