@@ -123,8 +123,9 @@ async def create_video(
         )
         
         valkey_client = ValkeyClient(VALKEY_URL)
-        valkey_client.insert_video()
-        
+        key = f"video:{video.usuario}_{video.tema}"
+        valkey_client.insert_video(key,data)
+        valkey_client.change_status(key, "IN PROGRESS")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error del servidor: {e}")
 
@@ -132,3 +133,14 @@ async def create_video(
         content={"message": "Processing video creation request"},
         status_code=status.HTTP_200_OK,
     )
+
+
+@create_video.get("/get-videos-status")
+async def get_video_status():
+    try: 
+        valkey_client = ValkeyClient(VALKEY_URL)
+        videos = valkey_client.get_all_videos()
+        return videos
+    except Exception as ex: 
+        print("Exceptional hacer get de los videos de valkey")
+        

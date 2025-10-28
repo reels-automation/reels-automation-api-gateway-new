@@ -7,6 +7,6 @@ MONGO_URL = os.getenv("MONGO_URL")
 KAFKA_URL = os.getenv("KAFKA_URL")
 VALKEY_URL = os.getenv("VALKEY_URL")
 
-if len(VALKEY_URL) == 0:
+if len(VALKEY_URL) == 0 or VALKEY_URL == None:
     print("VALKEY URL ESTA VACIO: \n", VALKEY_URL)
     
